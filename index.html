@@ -6,7 +6,7 @@
 <title>מסלול המידע - לומדים DHCP, APIPA ופרוטוקול DORA עם סהר</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght=400;500;600;700;800&family=Fira+Code:wght=400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght=400;500;600;700;800&family=Fira+Code:wght=400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -43,6 +43,23 @@ p { margin: 0 0 12px; color: var(--muted); }
 
 .ltr { direction: ltr; display: inline-block; unicode-bidi: embed; }
 .code-text { font-family: 'Fira Code', monospace; direction: ltr; display: inline-block; }
+
+/* מיסגור מושגים באנגלית באקורדיון בחלק 2 */
+.term-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  direction: ltr;
+  margin: 0 2px;
+}
 
 .progressbar { position: sticky; top: 0; z-index: 150; background: rgba(250, 247, 240, 0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 14px 20px; }
 .progressbar-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
@@ -93,7 +110,6 @@ section { padding: 40px 0; border-top: 1px solid var(--border); }
 .tab-btn:hover { background: var(--panel3); }
 .tab-btn.active { background: var(--cyber-purple); color: #FFFFFF; border-color: var(--cyber-purple); }
 
-/* עיצוב מיוחד ובולט לטאב החסמים ב-Broadcast */
 .tab-btn.highlight-tab {
   background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
   border: 2px solid var(--ospf-gold);
@@ -143,7 +159,7 @@ section { padding: 40px 0; border-top: 1px solid var(--border); }
 .pt-tool-btn:hover { background-color: #e2e8f0; border-color: #0284c7; color: #0284c7; }
 .pt-tool-btn.active { background-color: #0284c7; color: white; border-color: #0369a1; }
 
-.pt-main-content { display: flex; padding: 10px; gap: 10px; height: 580px; }
+.pt-main-content { display: flex; padding: 10px; gap: 10px; height: 610px; }
 @media(max-width:850px){ .pt-main-content { flex-direction: column; height: auto; } }
 
 .pt-side-panel { width: 270px; background: white; border-radius: 6px; border: 1px solid #94a3b8; padding: 10px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
@@ -155,23 +171,66 @@ section { padding: 40px 0; border-top: 1px solid var(--border); }
 .pt-form-group input { padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; font-family: 'Fira Code', monospace; }
 
 .pt-workspace { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-.pt-canvas-container { flex: 1; min-height: 250px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #94a3b8; border-radius: 6px; position: relative; overflow: hidden; }
+.pt-canvas-container { flex: 1; min-height: 330px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #94a3b8; border-radius: 6px; position: relative; overflow: hidden; }
 .pt-canvas-bg { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 16px 16px; opacity: 0.5; }
 
+/* מיקומים של הרכיבים ברשת */
 .pt-node { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 5; cursor: pointer; }
 .pt-node-icon { width: 55px; height: 55px; background-color: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; font-size: 26px; border: 2px solid #0284c7; }
-.pt-node-server { left: 80px; top: 100px; }
-.pt-node-client { right: 80px; top: 100px; }
-.pt-node-switch { left: 50%; top: 100px; transform: translateX(-50%); }
+.pt-node-server { left: 80px; top: 150px; }
+.pt-node-client { right: 80px; top: 150px; }
+.pt-node-switch { left: 50%; top: 150px; transform: translateX(-50%); }
 
 .pt-node-label { margin-top: 4px; font-size: 11px; font-weight: bold; background-color: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 8px; border: 1px solid #cbd5e1; color: #1e293b; text-align: center; }
-.pt-node-ip { font-size: 10px; color: #64748b; direction: ltr; font-family: 'Fira Code', monospace; }
+.pt-node-ip { font-size: 10px; color: #0284c7; direction: ltr; font-family: 'Fira Code', monospace; font-weight: bold; }
+.pt-node-mac { font-size: 9px; color: #64748b; direction: ltr; font-family: 'Fira Code', monospace; background: #ffffff; padding: 1px 4px; border-radius: 4px; border: 1px solid #cbd5e1; margin-top: 2px; }
 
 .pt-cables-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-.pt-packet-envelope { position: absolute; width: 38px; height: 26px; background: #ffffff; border: 2px solid #0284c7; border-radius: 4px; z-index: 10; display: none; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 14px; transform: translate(-50%, -50%); }
-.pt-packet-envelope::after { content: '✉️'; font-size: 16px; }
-.pt-packet-tag { position: absolute; top: -18px; font-size: 9px; font-weight: bold; padding: 1px 4px; border-radius: 3px; color: white; white-space: nowrap; font-family: 'Fira Code', monospace; }
+/* מעטפה מוגדלת שנעה למעלה מבלי להסתיר רכיבים */
+.pt-packet-envelope { 
+  position: absolute; 
+  width: 175px; 
+  background: #FFFFFF; 
+  border: 2px solid #0284c7; 
+  border-radius: 8px; 
+  z-index: 20; 
+  display: none; 
+  flex-direction: column; 
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25); 
+  transform: translate(-50%, -50%); 
+  font-family: 'Fira Code', monospace;
+  overflow: hidden;
+  direction: ltr;
+}
+
+.pt-packet-header {
+  background: #0284c7;
+  color: white;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pt-packet-body {
+  padding: 5px;
+  font-size: 9px;
+  background: #F8FAFC;
+  line-height: 1.3;
+}
+
+.pt-packet-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #E2E8F0;
+  padding: 1px 0;
+}
+.pt-packet-row:last-child { border-bottom: none; }
+.pt-packet-key { color: #64748b; font-weight: bold; }
+.pt-packet-val { color: #0f172a; font-weight: 600; }
 
 .pt-explanation-box { background-color: #ffffff; border-right: 4px solid #0284c7; border-radius: 4px; padding: 8px 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 3px; }
 .pt-exp-title { font-size: 13px; font-weight: bold; color: #0284c7; display: flex; justify-content: space-between; }
@@ -292,21 +351,21 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 
 <div id="acc1" class="accordion">
   <div class="acc-head" onclick="toggleAcc('acc1')">
-    <span>למה שלב Request נשלח ב-Broadcast אם הלקוח כבר קיבל הצעה?</span>
+    <span>למה שלב <span class="term-badge">Request</span> נשלח ב-<span class="term-badge">Broadcast</span> אם הלקוח כבר קיבל הצעה?</span>
     <span class="acc-arrow">▾</span>
   </div>
   <div class="acc-body"><div class="acc-body-inner">
-    <p>במידה וקיימים מספר שרתי DHCP ברשת, הלקוח עשוי לקבל מספר הצעות (<span class="code-text">Offer</span>). כאשר הלקוח שולח הודעת <span class="code-text">Request</span> בשידור היקפי (Broadcast), הוא מודיע לכל השרתים ברשת באיזו הצעה הוא בחר, ובכך מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר.</p>
+    <p>במידה וקיימים מספר שרתי <span class="term-badge">DHCP</span> ברשת, הלקוח עשוי לקבל מספר הצעות (<span class="term-badge">Offer</span>). כאשר הלקוח שולח הודעת <span class="term-badge">Request</span> בשידור היקפי (<span class="term-badge">Broadcast</span>), הוא מודיע לכל השרתים ברשת באיזו הצעה הוא בחר, ובכך מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר (<span class="term-badge">Address Pool</span>).</p>
   </div></div>
 </div>
 
 <div id="acc2" class="accordion">
   <div class="acc-head" onclick="toggleAcc('acc2')">
-    <span>מהם זמני חידוש החכירה (Lease Renewal - T1 & T2)?</span>
+    <span>מהם זמני חידוש החכירה (<span class="term-badge">Lease Renewal - T1 & T2</span>)?</span>
     <span class="acc-arrow">▾</span>
   </div>
   <div class="acc-body"><div class="acc-body-inner">
-    <p>הלקוח אינו ממתין לתום זמן החכירה כדי לחדש כתובת. ב-<b>50% מפרק הזמן (T1)</b>, הלקוח פונה ב-Unicast לשרת המקורי לבקשת חידוש. במידה והשרת לא משיב, ב-<b>87.5% מפרק הזמן (T2)</b>, הלקוח יוצא ב-Broadcast לכל השרתים ברשת כדי למנוע נתוק רשת.</p>
+    <p>הלקוח אינו ממתין לתום זמן החכירה כדי לחדש כתובת. ב-<b>50% מפרק הזמן (<span class="term-badge">T1 Timer</span>)</b>, הלקוח פונה ב-<span class="term-badge">Unicast</span> לשרת המקורי לבקשת חידוש. במידה והשרת לא משיב, ב-<b>87.5% מפרק הזמן (<span class="term-badge">T2 Timer</span>)</b>, הלקוח יוצא ב-<span class="term-badge">Broadcast</span> לכל השרתים ברשת כדי למנוע נתוק רשת.</p>
   </div></div>
 </div>
 </section>
@@ -317,13 +376,13 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
   <div class="section-num">03 — סימולטור Cisco Packet Tracer אינטראקטיבי</div>
   <h2 class="section-title">מדמה שרת DHCP, הגדרת Pool וסימולציית תהליך DORA</h2>
 </div>
-<p>השתמש בסימולטור המרכזי שלפניך: הגדר את פרמטרי השרת, לחץ על "התחל תהליך DORA" ועקוב אחר המעטפה הנעה באיטיות בין התחנות.</p>
+<p>השתמש בסימולטור המרכזי שלפניך: הגדר את פרמטרי השרת, לחץ על "התחל תהליך DORA" ועקוב אחר תנועת מעטפת המידע (הנעה מעל הרכיבים) ומציגה את נתוני ה-<b>L2 Frame</b> וה-<b>L3 Packet</b> המתעדכנים בלייב!</p>
 
 <div class="window-container">
     <div class="window-header">
         <div class="window-title">
             <span>🌐</span>
-            <span>Cisco Packet Tracer - [מדמה שרת DHCP ולימוד תהליך DORA]</span>
+            <span>Cisco Packet Tracer - [מדמה שרת DHCP ותצוגת Frame/Packet DORA]</span>
         </div>
         <div class="window-controls">
             <span class="win-btn win-min"></span>
@@ -387,30 +446,44 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
                 <div class="pt-canvas-bg"></div>
 
                 <svg class="pt-cables-svg" id="cables-svg">
-                    <line id="line-server-switch" x1="110" y1="130" x2="50%" y2="130" stroke="#475569" stroke-width="3" stroke-dasharray="4"/>
-                    <line id="line-client-switch" x1="85%" y1="130" x2="50%" y2="130" stroke="#475569" stroke-width="3" stroke-dasharray="4"/>
+                    <line id="line-server-switch" x1="110" y1="180" x2="50%" y2="180" stroke="#475569" stroke-width="3" stroke-dasharray="4"/>
+                    <line id="line-client-switch" x1="85%" y1="180" x2="50%" y2="180" stroke="#475569" stroke-width="3" stroke-dasharray="4"/>
                 </svg>
 
+                <!-- רכיבי הרשת עם כתובות MAC מתחת לרכיבים -->
                 <div class="pt-node pt-node-server" id="node-server">
                     <div class="pt-node-icon">🖥️</div>
                     <div class="pt-node-label">DHCP-Server</div>
                     <div class="pt-node-ip">192.168.1.254</div>
+                    <div class="pt-node-mac">MAC: 000B.12C4.9999</div>
                 </div>
 
                 <div class="pt-node pt-node-switch" id="node-switch">
                     <div class="pt-node-icon" style="border-radius: 50%; border-color: #64748b;">🔀</div>
                     <div class="pt-node-label">Switch-2960</div>
                     <div class="pt-node-ip">L2 Switch</div>
+                    <div class="pt-node-mac">MAC: 0011.2233.4455</div>
                 </div>
 
                 <div class="pt-node pt-node-client" id="node-client">
                     <div class="pt-node-icon" id="client-icon">💻</div>
                     <div class="pt-node-label" id="client-name">PC-Client-1</div>
                     <div class="pt-node-ip" id="client-ip-display">DHCP: ממתין...</div>
+                    <div class="pt-node-mac">MAC: 000A.41A1.1111</div>
                 </div>
 
+                <!-- המעטפה המוגדלת שנעה למעלה מעל הרכיבים -->
                 <div class="pt-packet-envelope" id="packet">
-                    <div class="pt-packet-tag" id="packet-tag">DORA</div>
+                    <div class="pt-packet-header" id="packet-header">
+                        <span id="packet-tag">DORA</span>
+                        <span id="packet-proto">UDP 67/68</span>
+                    </div>
+                    <div class="pt-packet-body">
+                        <div class="pt-packet-row"><span class="pt-packet-key">Src IP:</span><span class="pt-packet-val" id="pkt-src-ip">0.0.0.0</span></div>
+                        <div class="pt-packet-row"><span class="pt-packet-key">Dst IP:</span><span class="pt-packet-val" id="pkt-dst-ip">255.255.255.255</span></div>
+                        <div class="pt-packet-row"><span class="pt-packet-key">Src MAC:</span><span class="pt-packet-val" id="pkt-src-mac">000A.41A1.1111</span></div>
+                        <div class="pt-packet-row"><span class="pt-packet-key">Dst MAC:</span><span class="pt-packet-val" id="pkt-dst-mac">FFFF.FFFF.FFFF</span></div>
+                    </div>
                 </div>
             </div>
 
@@ -529,13 +602,12 @@ Router(config)# <span class="hint">Type the command to create DHCP pool and pres
 </div>
 
 <div class="tab-btn-group">
-  <!-- טאב מובלט חדש לפני המבדק -->
   <button class="tab-btn highlight-tab active" onclick="switchTab('no-dhcp-tab', this)">🚨 מי לא יקבל כתובת משרת DHCP? (Broadcasting & L3 Boundary)</button>
   <button class="tab-btn" onclick="switchTab('quiz-tab', this)">📝 מבדק 10 שאלות (אמריקאי)</button>
   <button class="tab-btn" onclick="switchTab('reflection-tab', this)">💡 שאלות רפלקציה מעצימות</button>
 </div>
 
-<!-- Tab 0: הטאב החדש והבולט - מי לא יקבל כתובת DHCP? -->
+<!-- Tab 0: מי לא יקבל כתובת DHCP? -->
 <div id="no-dhcp-tab" class="tab-content active">
   <div class="card" style="border:2px solid var(--ospf-gold); background: #FFFDF5; margin-bottom:20px;">
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
@@ -579,13 +651,11 @@ Router(config)# <span class="hint">Type the command to create DHCP pool and pres
     </div>
   </div>
 
-  <!-- תרגול מחשבתי / סימולציית תרחישים -->
   <div class="card" style="border:1px solid var(--border);">
     <h3 style="color:#1E293B; font-size:16px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
       <span>🧪</span> מבדק תתרחישים: האם המחשב יקבל כתובת IP?
     </h3>
     <p style="font-size:13px;">קרא את התרחישים הבאים, קבע האם המחשב יקבל כתובת IP משרת ה-DHCP ובדוק את תשובתך:</p>
-
     <div id="scenarioContainer"></div>
   </div>
 </div>
@@ -704,12 +774,19 @@ let isPaused = false;
 let speedFactor = 0.5;
 let currentIPIndex = 0;
 
-const serverPos = { x: 110, y: 130 };
-const switchPos = { x: 500, y: 130 };
-const clientPos = { x: 830, y: 130 };
+// מיקומי מסלול המעטפה (הורמו לערך y:55 כדי לנוע ממוקם מעל הרכיבים)
+const serverPos = { x: 110, y: 55 };
+const switchPos = { x: 500, y: 55 };
+const clientPos = { x: 830, y: 55 };
 
 const packet = document.getElementById('packet');
+const packetHeader = document.getElementById('packet-header');
 const packetTag = document.getElementById('packet-tag');
+const pktSrcIp = document.getElementById('pkt-src-ip');
+const pktDstIp = document.getElementById('pkt-dst-ip');
+const pktSrcMac = document.getElementById('pkt-src-mac');
+const pktDstMac = document.getElementById('pkt-dst-mac');
+
 const expTitle = document.getElementById('exp-step-title');
 const expPhase = document.getElementById('exp-phase');
 const expDesc = document.getElementById('exp-description');
@@ -732,6 +809,10 @@ const doraData = [
         color: "var(--discover-color)",
         from: clientPos,
         to: serverPos,
+        srcIp: "0.0.0.0",
+        dstIp: "255.255.255.255",
+        srcMac: "000A.41A1.1111",
+        dstMac: "FFFF.FFFF.FFFF",
         phase: "שלב 1 מתוך 4",
         title: "🔍 שלב Discover - הלקוח מחפש שרת DHCP",
         desc: "המחשב שולח הודעת שידור היקפית (Broadcast - 255.255.255.255) לכל הרשת ושואל: 'האם יש כאן שרת DHCP שזה עתה התחברתי אליו?'"
@@ -742,6 +823,10 @@ const doraData = [
         color: "var(--offer-color)",
         from: serverPos,
         to: clientPos,
+        srcIp: "192.168.1.254",
+        dstIp: "192.168.1.10",
+        srcMac: "000B.12C4.9999",
+        dstMac: "000A.41A1.1111",
         phase: "שלב 2 מתוך 4",
         title: "📩 שלב Offer - השרת מציע כתובת IP",
         desc: "שרת ה-DHCP משיב בהצעה (Unicast) הכוללת כתובת IP פנויה, מסיכת רשת, שער ברירת מחדל וכתובת שרת DNS."
@@ -752,6 +837,10 @@ const doraData = [
         color: "var(--request-color)",
         from: clientPos,
         to: serverPos,
+        srcIp: "0.0.0.0",
+        dstIp: "255.255.255.255",
+        srcMac: "000A.41A1.1111",
+        dstMac: "FFFF.FFFF.FFFF",
         phase: "שלב 3 מתוך 4",
         title: "📝 שלב Request - הלקוח מבקש לאשר את ההצעה",
         desc: "המחשב שולח בקשה רשמית (Broadcast) לאשר את הכתובת שהוצעה, כדי לעדכן גם שרתים נוספים במידה וקיימים ברשת."
@@ -762,6 +851,10 @@ const doraData = [
         color: "var(--ack-color)",
         from: serverPos,
         to: clientPos,
+        srcIp: "192.168.1.254",
+        dstIp: "192.168.1.10",
+        srcMac: "000B.12C4.9999",
+        dstMac: "000A.41A1.1111",
         phase: "שלב 4 מתוך 4",
         title: "✅ שלב Acknowledge - השרת מאשר סופית",
         desc: "השרת שולח אישור סופי (ACK), רושם את הלקוח בטבלת החכירות והמחשב מוגדר ומחובר לרשת באופן מלא!"
@@ -789,20 +882,25 @@ function togglePause() {
     btnPause.innerText = isPaused ? "▶️ המשך" : "⏸️ השהה";
 }
 
-async function animatePacket(from, to, color, tagText) {
+async function animatePacket(data) {
     return new Promise((resolve) => {
         packet.style.display = 'flex';
-        packet.style.borderColor = color;
-        packetTag.style.backgroundColor = color;
-        packetTag.innerText = tagText;
+        packet.style.borderColor = data.color;
+        packetHeader.style.backgroundColor = data.color;
+        packetTag.innerText = data.tag;
+        
+        pktSrcIp.innerText = data.srcIp;
+        pktDstIp.innerText = data.dstIp;
+        pktSrcMac.innerText = data.srcMac;
+        pktDstMac.innerText = data.dstMac;
 
-        let startX = from.x;
-        let startY = from.y;
-        let endX = to.x;
-        let endY = to.y;
+        let startX = data.from.x;
+        let startY = data.from.y;
+        let endX = data.to.x;
+        let endY = data.to.y;
 
         let startTime = null;
-        const baseDuration = 3000;
+        const baseDuration = 3500;
         const duration = baseDuration / speedFactor;
 
         function step(timestamp) {
@@ -842,6 +940,12 @@ async function startDORA() {
     document.getElementById('client-ip-display').innerText = "DHCP: מבקש כתובת...";
     document.getElementById('client-ip-display').style.color = "#0284c7";
 
+    const assignedIP = getAssignedIP();
+    
+    // מעדכן את כתובת היעד בהצעות בהתאם לכתובת שהוקצתה
+    doraData[1].dstIp = assignedIP;
+    doraData[3].dstIp = assignedIP;
+
     for (let i = 0; i < doraData.length; i++) {
         const data = doraData[i];
         resetStepsUI();
@@ -852,11 +956,10 @@ async function startDORA() {
         expPhase.innerText = data.phase;
         expDesc.innerText = data.desc;
 
-        await animatePacket(data.from, data.to, data.color, data.tag);
-        await new Promise(r => setTimeout(r, 500 / speedFactor));
+        await animatePacket(data);
+        await new Promise(r => setTimeout(r, 600 / speedFactor));
     }
 
-    const assignedIP = getAssignedIP();
     document.getElementById('client-ip-display').innerText = assignedIP;
     document.getElementById('client-ip-display').style.color = "#16a34a";
     document.getElementById('client-icon').style.border = "2px solid #16a34a";
@@ -951,13 +1054,13 @@ function submitDhcpCmd() {
   output.scrollTop = output.scrollHeight;
 }
 
-/* Scenarios Check Logic (New Highlighted Tab) */
+/* Scenarios Check Logic */
 const scenariosData = [
   {
     q: "תרחיש 1: מחשב שייך ל-VLAN 10 והיה מחובר לסוויץ'. שרת ה-DHCP מחובר לפורט השייך ל-VLAN 20 באותו המתג. האם המחשב יקבל כתובת IP?",
-    options: ["כן, השרת נמצא באותו סוויץ' פיזי", "לא, הודעת ה-Broadcast תיחסם בגבול ה-VLAN והמחשב לקבל APIPA"],
+    options: ["כן, השרת נמצא באותו סוויץ' פיזי", "לא, הודעת ה-Broadcast תיחסם בגבול ה-VLAN והמחשב יקבל APIPA"],
     ans: 1,
-    explain: "הסבר: מתג (Switch) מבודד BroadcastDomains בין VLANs שונים. הודעת ה-Discover ב-VLAN 10 לעולם לא תגיע ל-VLAN 20 ללא רכיב L3 מתווך!"
+    explain: "הסבר: מתג (Switch) מבודד Broadcast Domains בין VLANs שונים. הודעת ה-Discover ב-VLAN 10 לעולם לא תגיע ל-VLAN 20 ללא רכיב L3 מתווך!"
   },
   {
     q: "תרחיש 2: מחשב מחובר בסניף חיפה. שרת ה-DHCP הפיזי ממוקם בשרתיה המרכזית בתל אביב. בנתב של סניף חיפה הוגדרה הפקודה: ip helper-address. האם המחשב יקבל כתובת IP?",
@@ -1022,7 +1125,7 @@ function selectScenarioOpt(sIdx, oIdx) {
   }
 }
 
-/* 10 Multiple Choice Questions for Quiz Tab */
+/* Quiz Logic */
 const quizQuestions = [
   {
     q: "1. מה מייצגים ראשי התיבות של פרוטוקול DHCP?",
@@ -1194,7 +1297,7 @@ function calculateQuizScore() {
   markDone("s5");
 }
 
-/* 5 Empowering Reflection Questions */
+/* Reflection Logic */
 const reflectionQuestions = [
   {
     q: "1. רפלקציית תהליך DORA: כיצד ההבנה של 4 השלבים (DORA) עוזרת לך לאבחן תקלה שבה מחשב אינו מקבל כתובת IP?",
