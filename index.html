@@ -350,11 +350,11 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 
 <div id="acc1" class="accordion">
   <div class="acc-head" onclick="toggleAcc('acc1')">
-    <span>למה שלב <span class="term-badge">Request</span> נשלח ב-<span class="term-badge">Broadcast</span> ברמת השכבה השלישית (<span class="term-badge">L3</span>)?</span>
+    <span>למה שלב <span class="term-badge">Request</span> נשלח ב-<span class="term-badge">Broadcast</span> מוחלט (גם ברמת ה-IP וגם ברמת ה-MAC)?</span>
     <span class="acc-arrow">▾</span>
   </div>
   <div class="acc-body"><div class="acc-body-inner">
-    <p>במידה וקיימים מספר שרתי <span class="term-badge">DHCP</span> ברשת, הלקוח עשוי לקבל מספר הצעות (<span class="term-badge">Offer</span>). כאשר הלקוח שולח הודעת <span class="term-badge">Request</span> בשידור היקפי (<span class="term-badge">Broadcast IP: 255.255.255.255</span>) אל ה-<span class="term-badge">Dst MAC</span> של השרת שנבחר, הוא מודיע לכל שאר השרתים ברשת באיזו הצעה הוא בחר, ובכך מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר (<span class="term-badge">Address Pool</span>).</p>
+    <p>במידה וקיימים מספר שרתי <span class="term-badge">DHCP</span> ברשת, הלקוח עשוי לקבל מספר הצעות (<span class="term-badge">Offer</span>). כאשר הלקוח שולח הודעת <span class="term-badge">Request</span> בשידור היקפי (<span class="term-badge">Broadcast</span>) לכל רכיבי המקטע (<span class="term-badge">Dst MAC: FFFF.FFFF.FFFF</span>), הוא מודיע לכל השרתים ברשת באיזו הצעה הוא בחר, ובכך מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר (<span class="term-badge">Address Pool</span>).</p>
   </div></div>
 </div>
 
@@ -524,7 +524,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
             </div>
             <div class="pt-step-item pt-step-request" id="step-R">
                 <span class="pt-step-badge">3</span>
-                <span>Request (בקשה - Broadcast L3)</span>
+                <span>Request (בקשה - Broadcast)</span>
             </div>
             <div class="pt-step-item pt-step-ack" id="step-A">
                 <span class="pt-step-badge">4</span>
@@ -800,7 +800,7 @@ function getAssignedIP() {
     return "192.168.1.10";
 }
 
-// תיקון: בשלב R (DHCP REQUEST) היעד ברמת השילוד (Dst MAC) הוא כתובת ה-MAC של שרת ה-DHCP שנבחר ולא FFFF.FFFF.FFFF
+// בשלב R (DHCP REQUEST) היעד ברמת השילוד (Dst MAC) הוא FFFF.FFFF.FFFF (Broadcast)
 const doraData = [
     {
         step: "D",
@@ -839,10 +839,10 @@ const doraData = [
         srcIp: "0.0.0.0",
         dstIp: "255.255.255.255",
         srcMac: "000A.41A1.1111",
-        dstMac: "000B.12C4.9999", // תוקן ל-MAC של השרת
+        dstMac: "FFFF.FFFF.FFFF", // מוחזר ל-Broadcast ברמת ה-MAC
         phase: "שלב 3 מתוך 4",
         title: "📝 שלב Request - הלקוח מבקש לאשר את ההצעה",
-        desc: "המחשב שולח בקשה (Broadcast ברמת IP, Unicast ברמת MAC לשרת) לאשר את הכתובת שהוצעה, כדי לעדכן גם שרתים נוספים במידה וקיימים ברשת."
+        desc: "המחשב שולח בקשה ב-Broadcast מוחלט (גם IP וגם MAC) כדי להודיע לכל השרתים במקטע באיזו הצעה הוא בחר ולשחרר הצעות שנדחו."
     },
     {
         step: "A",
