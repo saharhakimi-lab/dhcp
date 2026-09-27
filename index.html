@@ -6,7 +6,7 @@
 <title>מסלול המידע - לומדים DHCP, APIPA ופרוטוקול DORA עם סהר</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght=400;500;600;700;800&family=Fira+Code:wght=400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -316,7 +316,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
       <img src="https://lh3.googleusercontent.com/d/1fzqv93VKIW_VT8-e1HdJxBmbU2sFnwlb" alt="אווטר סהר מסתובב" class="hero-avatar-spin">
       <h1 class="title">הבנת פרוטוקול <span class="term-badge" style="font-size:32px;">DHCP</span>, <span class="term-badge" style="font-size:32px;">APIPA</span> <span>ותהליך <span class="term-badge" style="font-size:32px;">DORA</span> עם סהר</span></h1>
     </div>
-    <p class="subtitle" style="font-size:17px;">ברוכים הבאים לשיעור האינטראקטיבי המקיף! כאן תלמדו כיצד מכשירים מקבלים כתובת <span class="term-badge">IP</span> אוטומטית, מה קורה כשהשרת אינו זמין (<span class="term-badge">APIPA</span>), וכיצד מנהלים ומגדירים שרת <span class="term-badge">DHCP</span> בסיסקו וברשת הארגונית.</p>
+    <p class="subtitle" style="font-size:17px;">ברוכים הבאים לשיעור האינטראקטיבי המקיף! כאן תלמדו כיצד מכשירים מקבלים כתובת <span class="term-badge">IP</span> אוטומטית, מה קורה כשהשרת אינו זמין <span class="term-badge">APIPA</span>, וכיצד מנהלים ומגדירים שרת <span class="term-badge">DHCP</span> בסיסקו וברשת הארגונית.</p>
   </div>
 </header>
 
@@ -330,13 +330,13 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 <div class="grid2">
   <div class="card concept-card">
     <h3>📌 פרוטוקול <span class="term-badge">DHCP</span> ותהליך <span class="term-badge">DORA</span></h3>
-    <p><span class="tag static">DHCP (UDP 67/68)</span> פרוטוקול המקצה כתובות <span class="term-badge">IP</span>, מסיכת רשת, שער ברירת מחדל ושרתי <span class="term-badge">DNS</span> באופן אוטומטי למכשירים ברשת.</p>
-    <p><span class="tag ospf">תהליך DORA</span> ארבעת שלבי החכירה: <span class="term-badge">Discover</span> (שידור), <span class="term-badge">Offer</span> (הצעה), <span class="term-badge">Request</span> (בקשה), ו-<span class="term-badge">Acknowledge</span> (אישור).</p>
+    <p><span class="tag static">DHCP UDP 67/68</span> פרוטוקול המקצה כתובות <span class="term-badge">IP</span>, מסיכת רשת, שער ברירת מחדל ושרתי <span class="term-badge">DNS</span> באופן אוטומטי למכשירים ברשת.</p>
+    <p><span class="tag ospf">תהליך DORA</span> ארבעת שלבי החכירה: <span class="term-badge">Discover</span> שידור, <span class="term-badge">Offer</span> הצעה, <span class="term-badge">Request</span> בקשה, ו-<span class="term-badge">Acknowledge</span> אישור.</p>
   </div>
   <div class="card concept-card">
     <h3>⚠️ מנגנון החירום: כתובת <span class="term-badge">APIPA</span></h3>
-    <p><span class="tag apipa">APIPA (Automatic Private IP)</span> מנגנון גיבוי של מערכת ההפעלה המקצה כתובת עצמית כאשר שרת ה-<span class="term-badge">DHCP</span> אינו משיב.</p>
-    <p><span class="tag apipa">טווח APIPA: 169.254.0.0/16</span> כתובת זו מאפשרת תקשורת מקומית בלבד בתוך ה-<span class="term-badge">LAN</span>, אך <b>אינה מאפשרת יציאה לאינטרנט</b> (אין <span class="term-badge">Default Gateway</span>).</p>
+    <p><span class="tag apipa">APIPA Automatic Private IP</span> מנגנון גיבוי של מערכת ההפעלה המקצה כתובת עצמית כאשר שרת ה-<span class="term-badge">DHCP</span> אינו משיב.</p>
+    <p><span class="tag apipa">טווח APIPA: 169.254.0.0/16</span> כתובת זו מאפשרת תקשורת מקומית בלבד בתוך ה-<span class="term-badge">LAN</span>, אך <b>אינה מאפשרת יציאה לאינטרנט</b> אין <span class="term-badge">Default Gateway</span>.</p>
   </div>
 </div>
 </section>
@@ -350,21 +350,21 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 
 <div id="acc1" class="accordion">
   <div class="acc-head" onclick="toggleAcc('acc1')">
-    <span>למה שלב <span class="term-badge">Request</span> נשלח ב-<span class="term-badge">Broadcast</span> מוחלט (גם ברמת ה-IP וגם ברמת ה-MAC)?</span>
+    <span>למה שלב <span class="term-badge">Request</span> נשלח ב-<span class="term-badge">Broadcast</span> מוחלט גם ברמת ה-IP וגם ברמת ה-MAC?</span>
     <span class="acc-arrow">▾</span>
   </div>
   <div class="acc-body"><div class="acc-body-inner">
-    <p>במידה וקיימים מספר שרתי <span class="term-badge">DHCP</span> ברשת, הלקוח עשוי לקבל מספר הצעות (<span class="term-badge">Offer</span>). כאשר הלקוח שולח הודעת <span class="term-badge">Request</span> בשידור היקפי (<span class="term-badge">Broadcast</span>) לכל רכיבי המקטע (<span class="term-badge">Dst MAC: FFFF.FFFF.FFFF</span>), הוא מודיע לכל השרתים ברשת באיזו הצעה הוא בחר, ובכך מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר (<span class="term-badge">Address Pool</span>).</p>
+    <p>במידה וקיימים מספר שרתי <span class="term-badge">DHCP</span> ברשת, הלקוח עשוי לקבל מספר הצעות <span class="term-badge">Offer</span>. כאשר הלקוח שולח הודעת <span class="term-badge">Request</span> בשידור היקפי <span class="term-badge">Broadcast</span> לכל רכיבי המקטע <span class="term-badge">Dst MAC: FFFF.FFFF.FFFF</span>, הוא מודיע לכל השרתים ברשת באיזו הצעה הוא בחר, ובכך מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר <span class="term-badge">Address Pool</span>.</p>
   </div></div>
 </div>
 
 <div id="acc2" class="accordion">
   <div class="acc-head" onclick="toggleAcc('acc2')">
-    <span>מהם זמני חידוש החכירה (<span class="term-badge">Lease Renewal - T1 & T2</span>)?</span>
+    <span>מהם זמני חידוש החכירה <span class="term-badge">Lease Renewal - T1 & T2</span>?</span>
     <span class="acc-arrow">▾</span>
   </div>
   <div class="acc-body"><div class="acc-body-inner">
-    <p>הלקוח אינו ממתין לתום זמן החכירה כדי לחדש כתובת. ב-<b>50% מפרק הזמן (<span class="term-badge">T1 Timer</span>)</b>, הלקוח פונה ב-<span class="term-badge">Unicast</span> לשרת המקורי לבקשת חידוש. במידה והשרת לא משיב, ב-<b>87.5% מפרק הזמן (<span class="term-badge">T2 Timer</span>)</b>, הלקוח יוצא ב-<span class="term-badge">Broadcast</span> לכל השרתים ברשת כדי למנוע נתוק רשת.</p>
+    <p>הלקוח אינו ממתין לתום זמן החכירה כדי לחדש כתובת. ב-<b>50% מפרק הזמן <span class="term-badge">T1 Timer</span></b>, הלקוח פונה ב-<span class="term-badge">Unicast</span> לשרת המקורי לבקשת חידוש. במידה והשרת לא משיב, ב-<b>87.5% מפרק הזמן <span class="term-badge">T2 Timer</span></b>, הלקוח יוצא ב-<span class="term-badge">Broadcast</span> לכל השרתים ברשת כדי למנוע נתוק רשת.</p>
   </div></div>
 </div>
 </section>
@@ -381,7 +381,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
     <div class="window-header">
         <div class="window-title">
             <span>🌐</span>
-            <span>Cisco Packet Tracer - [מדמה שרת DHCP ותצוגת Frame/Packet DORA]</span>
+            <span>Cisco Packet Tracer - מדמה שרת DHCP ותצוגת Frame/Packet DORA</span>
         </div>
         <div class="window-controls">
             <span class="win-btn win-min"></span>
@@ -393,7 +393,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
     <div class="pt-toolbar">
         <button class="pt-tool-btn active">🖥️ הגדרות שרת DHCP</button>
         <button class="pt-tool-btn" onclick="resetSimulation()">🔄 איפוס רשת</button>
-        <button class="pt-tool-btn" onclick="addNewClient()">➕ הוסף תחנת קצה (Client)</button>
+        <button class="pt-tool-btn" onclick="addNewClient()">➕ הוסף תחנת קצה Client</button>
     </div>
 
     <div class="pt-main-content">
@@ -409,7 +409,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
             </div>
 
             <div class="pt-form-group">
-                <label>שער ברירת מחדל (Default Gateway):</label>
+                <label>שער ברירת מחדל Default Gateway:</label>
                 <input type="text" id="gw-ip" value="192.168.1.1">
             </div>
 
@@ -424,7 +424,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
             </div>
 
             <div class="pt-form-group">
-                <label>מסכת רשת (Subnet Mask):</label>
+                <label>מסכת רשת Subnet Mask:</label>
                 <input type="text" id="subnet-mask" value="255.255.255.0">
             </div>
 
@@ -493,7 +493,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
                 </div>
 
                 <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:bold; color:#334155;">
-                    <span>קצב תנועה (איטי בחצי):</span>
+                    <span>קצב תנועה איטי בחצי:</span>
                     <input type="range" id="speed-slider" min="0.5" max="2" step="0.25" value="0.5" onchange="updateSpeed()">
                     <span id="speed-val">0.5x</span>
                 </div>
@@ -516,25 +516,25 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
             <div style="font-size:13px; font-weight:bold; margin-bottom:2px; color:#1e293b;">שלבי תהליך DORA:</div>
             <div class="pt-step-item pt-step-discover" id="step-D">
                 <span class="pt-step-badge">1</span>
-                <span>Discover (גילוי - Broadcast)</span>
+                <span>Discover גילוי - Broadcast</span>
             </div>
             <div class="pt-step-item pt-step-offer" id="step-O">
                 <span class="pt-step-badge">2</span>
-                <span>Offer (הצעה - Unicast)</span>
+                <span>Offer הצעה - Unicast</span>
             </div>
             <div class="pt-step-item pt-step-request" id="step-R">
                 <span class="pt-step-badge">3</span>
-                <span>Request (בקשה - Broadcast)</span>
+                <span>Request בקשה - Broadcast</span>
             </div>
             <div class="pt-step-item pt-step-ack" id="step-A">
                 <span class="pt-step-badge">4</span>
-                <span>Acknowledge (אישור - Unicast)</span>
+                <span>Acknowledge אישור - Unicast</span>
             </div>
         </div>
 
         <div class="pt-table-panel">
             <div class="pt-panel-title" style="margin-bottom:2px;">
-                <span>📋 טבלת כתובות מוקצות (DHCP Address Leases)</span>
+                <span>📋 טבלת כתובות מוקצות DHCP Address Leases</span>
             </div>
             <div style="overflow-y:auto; flex:1;">
                 <table class="pt-dhcp-table">
@@ -543,7 +543,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
                             <th>שם המכשיר</th>
                             <th>כתובת IP שהוקצתה</th>
                             <th>מסכת רשת</th>
-                            <th>זמן חכירה (Lease)</th>
+                            <th>זמן חכירה Lease</th>
                             <th>מצב התקשרות</th>
                         </tr>
                     </thead>
@@ -562,7 +562,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 <!-- חלק 4: CLI -->
 <section id="s4">
 <div class="section-head">
-  <div class="section-num">04 — שורת הפקודה המעשית (Cisco CLI)</div>
+  <div class="section-num">04 — שורת הפקודה המעשית Cisco CLI</div>
   <h2 class="section-title">הגדרת שרת <span class="term-badge">DHCP</span> בנתב סיסקו</h2>
 </div>
 
@@ -601,8 +601,8 @@ Router(config)# <span class="hint">Type the command to create DHCP pool and pres
 </div>
 
 <div class="tab-btn-group">
-  <button class="tab-btn highlight-tab active" onclick="switchTab('no-dhcp-tab', this)">🚨 מי לא יקבל כתובת משרת DHCP? (<span class="term-badge">Broadcasting & L3 Boundary</span>)</button>
-  <button class="tab-btn" onclick="switchTab('quiz-tab', this)">📝 מבדק 10 שאלות (אמריקאי)</button>
+  <button class="tab-btn highlight-tab active" onclick="switchTab('no-dhcp-tab', this)">🚨 מי לא יקבל כתובת משרת DHCP? <span class="term-badge">Broadcasting & L3 Boundary</span></button>
+  <button class="tab-btn" onclick="switchTab('quiz-tab', this)">📝 מבדק 10 שאלות אמריקאי</button>
   <button class="tab-btn" onclick="switchTab('reflection-tab', this)">💡 שאלות רפלקציה מעצימות</button>
 </div>
 
@@ -613,12 +613,12 @@ Router(config)# <span class="hint">Type the command to create DHCP pool and pres
       <span style="font-size:36px;">🛑</span>
       <div>
         <h3 style="color:#92400E; margin:0; font-size:22px;">שאלה קריטית בהנדסת רשתות: מי לא יקבל כתובת <span class="term-badge">IP</span> משרת ה-<span class="term-badge">DHCP</span>?</h3>
-        <p style="margin:0; font-size:15px; color:#B45309;">ניתוח עומק: גבולות השידור (<span class="term-badge">Broadcast Domains</span>), חסימת <span class="term-badge">L3</span> ופתרון <span class="term-badge">DHCP Relay Agent</span></p>
+        <p style="margin:0; font-size:15px; color:#B45309;">ניתוח עומק: גבולות השידור <span class="term-badge">Broadcast Domains</span>, חסימת <span class="term-badge">L3</span> ופתרון <span class="term-badge">DHCP Relay Agent</span></p>
       </div>
     </div>
 
     <div style="line-height:1.7; font-size:16px; color:#334155;">
-      <p>כדי שמחשב יקבל כתובת <span class="term-badge">IP</span> אוטומטית משרת <span class="term-badge">DHCP</span>, עליו להשלים את שלב ה-<b>DHCP DISCOVER</b>. מכיוון שלמחשב הלקוח אין עדיין כתובת <span class="term-badge">IP</span>, הודעה זו נשלחת כ-<b>Broadcast (שידור היקפי) לכתובת <span class="term-badge">255.255.255.255</span> ולכתובת MAC יעד <span class="term-badge">FF:FF:FF:FF:FF:FF</span></b>.</p>
+      <p>כדי שמחשב יקבל כתובת <span class="term-badge">IP</span> אוטומטית משרת <span class="term-badge">DHCP</span>, עליו להשלים את שלב ה-<b>DHCP DISCOVER</b>. מכיוון שלמחשב הלקוח אין עדיין כתובת <span class="term-badge">IP</span>, הודעה זו נשלחת כ-<b>Broadcast שידור היקפי לכתובת <span class="term-badge">255.255.255.255</span> ולכתובת MAC יעד <span class="term-badge">FF:FF:FF:FF:FF:FF</span></b>.</p>
     </div>
 
     <div class="grid2" style="margin-top:16px;">
@@ -627,24 +627,24 @@ Router(config)# <span class="hint">Type the command to create DHCP pool and pres
           <span>❌</span> אלו המכשירים שלא יקבלו כתובת:
         </h4>
         <ul style="padding-right:20px; margin:0; font-size:15px; color:#475569;">
-          <li style="margin-bottom:10px;"><b>מחשבים ברשת פיזית/סאבנט אחרת:</b> נתב (<span class="term-badge">Router</span>) חוסם הודעות <span class="term-badge">Broadcast</span> כברירת מחדל ולא מעביר אותן בין ממשקיו!</li>
-          <li style="margin-bottom:10px;"><b>מחשבים ב-<span class="term-badge">VLAN</span> אחר:</b> מתג (<span class="term-badge">Switch</span>) מבודד לחלוטין מתחמי שידור (<span class="term-badge">Broadcast Domains</span>) בין <span class="term-badge">VLANs</span> שונים, גם אם הם על אותו מתג פיזי!</li>
-          <li style="margin-bottom:10px;"><b>מחשבים שסובלים מנתק פיזי / הפסקת שירות:</b> כבל מנותק, כרטיס רשת מנוטרל או שרת <span class="term-badge">DHCP</span> כבוי/מלא (<span class="term-badge">Exhausted Pool</span>).</li>
+          <li style="margin-bottom:10px;"><b>מחשבים ברשת פיזית/סאבנט אחרת:</b> נתב <span class="term-badge">Router</span> חוסם הודעות <span class="term-badge">Broadcast</span> כברירת מחדל ולא מעביר אותן בין ממשקיו!</li>
+          <li style="margin-bottom:10px;"><b>מחשבים ב-<span class="term-badge">VLAN</span> אחר:</b> מתג <span class="term-badge">Switch</span> מבודד לחלוטין מתחמי שידור <span class="term-badge">Broadcast Domains</span> בין <span class="term-badge">VLANs</span> שונים, גם אם הם על אותו מתג פיזי!</li>
+          <li style="margin-bottom:10px;"><b>מחשבים שסובלים מנתק פיזי / הפסקת שירות:</b> כבל מנותק, כרטיס רשת מנוטרל או שרת <span class="term-badge">DHCP</span> כבוי/מלא <span class="term-badge">Exhausted Pool</span>.</li>
         </ul>
       </div>
 
       <div style="background:#FFFFFF; border:1px solid #6EE7B7; border-radius:10px; padding:18px;">
         <h4 style="color:#059669; margin-top:0; font-size:18px; display:flex; align-items:center; gap:6px;">
-          <span>💡</span> הפתרון: רכיב/ראוטר משכבה 3 (<span class="term-badge">Layer 3</span>)
+          <span>💡</span> הפתרון: רכיב/ראוטר משכבה 3 <span class="term-badge">Layer 3</span>
         </h4>
         <p style="font-size:15px; color:#475569; margin-bottom:10px;">
-          כדי לאפשר למחשבים ברשת/<span class="term-badge">VLAN</span> מרוחק לקבל כתובת משרת מרכזי, יש להגדיר ברכיב השכבה השלישית (<span class="term-badge">Router</span> או <span class="term-badge">L3 Switch</span>) מנגנון תיווך:
+          כדי לאפשר למחשבים ברשת/<span class="term-badge">VLAN</span> מרוחק לקבל כתובת משרת מרכזי, יש להגדיר ברכיב השכבה השלישית <span class="term-badge">Router</span> או <span class="term-badge">L3 Switch</span> מנגנון תיווך:
         </p>
         <div style="background:#ECFDF5; border:1px dashed #10B981; padding:10px 14px; border-radius:6px; font-size:14px; font-family:'Fira Code', monospace; color:#065F46;" dir="ltr">
           Router(config-if)# ip helper-address &lt;DHCP_SERVER_IP&gt;
         </div>
         <p style="font-size:14px; color:#047857; margin-top:10px;">
-          פקודה זו מקבלת את ה-<span class="term-badge">Broadcast</span> (<span class="term-badge">Discover</span>) והופכת אותו ל-<span class="term-badge">Unicast</span> שנשלח ישירות אל שרת ה-<span class="term-badge">DHCP</span> המרכזי!
+          פקודה זו מקבלת את ה-<span class="term-badge">Broadcast</span> <span class="term-badge">Discover</span> והופכת אותו ל-<span class="term-badge">Unicast</span> שנשלח ישירות אל שרת ה-<span class="term-badge">DHCP</span> המרכזי!
         </p>
       </div>
     </div>
@@ -814,7 +814,7 @@ const doraData = [
         dstMac: "FFFF.FFFF.FFFF",
         phase: "שלב 1 מתוך 4",
         title: "🔍 שלב Discover - הלקוח מחפש שרת DHCP",
-        desc: "המחשב שולח הודעת שידור היקפית (Broadcast - 255.255.255.255) לכל הרשת ושואל: 'האם יש כאן שרת DHCP שזה עתה התחברתי אליו?'"
+        desc: "המחשב שולח הודעת שידור היקפית Broadcast - 255.255.255.255 לכל הרשת ושואל: 'האם יש כאן שרת DHCP שזה עתה התחברתי אליו?'"
     },
     {
         step: "O",
@@ -828,7 +828,7 @@ const doraData = [
         dstMac: "000A.41A1.1111",
         phase: "שלב 2 מתוך 4",
         title: "📩 שלב Offer - השרת מציע כתובת IP",
-        desc: "שרת ה-DHCP משיב בהצעה (Unicast) הכוללת כתובת IP פנויה, מסיכת רשת, שער ברירת מחדל וכתובת שרת DNS."
+        desc: "שרת ה-DHCP משיב בהצעה Unicast הכוללת כתובת IP פנויה, מסיכת רשת, שער ברירת מחדל וכתובת שרת DNS."
     },
     {
         step: "R",
@@ -842,7 +842,7 @@ const doraData = [
         dstMac: "FFFF.FFFF.FFFF", // מוחזר ל-Broadcast ברמת ה-MAC
         phase: "שלב 3 מתוך 4",
         title: "📝 שלב Request - הלקוח מבקש לאשר את ההצעה",
-        desc: "המחשב שולח בקשה ב-Broadcast מוחלט (גם IP וגם MAC) כדי להודיע לכל השרתים במקטע באיזו הצעה הוא בחר ולשחרר הצעות שנדחו."
+        desc: "המחשב שולח בקשה ב-Broadcast מוחלט גם IP וגם MAC כדי להודיע לכל השרתים במקטע באיזו הצעה הוא בחר ולשחרר הצעות שנדחו."
     },
     {
         step: "A",
@@ -856,7 +856,7 @@ const doraData = [
         dstMac: "000A.41A1.1111",
         phase: "שלב 4 מתוך 4",
         title: "✅ שלב Acknowledge - השרת מאשר סופית",
-        desc: "השרת שולח אישור סופי (ACK), רושם את הלקוח בטבלת החכירות והמחשב מוגדר ומחובר לרשת באופן מלא!"
+        desc: "השרת שולח אישור סופי ACK, רושם את הלקוח בטבלת החכירות והמחשב מוגדר ומחובר לרשת באופן מלא!"
     }
 ];
 
@@ -990,7 +990,7 @@ function addLeaseToTable(ip) {
         <td><b>${clientName}</b></td>
         <td style="direction:ltr; font-family:monospace; color:#0284c7; font-weight:bold;">${ip}</td>
         <td style="direction:ltr;">${mask}</td>
-        <td>24 שעות (פעיל)</td>
+        <td>24 שעות פעיל</td>
         <td><span style="background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:10px; font-size:11px;">מחובר</span></td>
     `;
     tbody.appendChild(row);
@@ -1058,7 +1058,7 @@ const scenariosData = [
     q: "תרחיש 1: מחשב שייך ל-<span class='term-badge'>VLAN 10</span> והיה מחובר לסוויץ'. שרת ה-<span class='term-badge'>DHCP</span> מחובר לפורט השייך ל-<span class='term-badge'>VLAN 20</span> באותו המתג. האם המחשב יקבל כתובת <span class='term-badge'>IP</span>?",
     options: ["כן, השרת נמצא באותו סוויץ' פיזי", "לא, הודעת ה-Broadcast תיחסם בגבול ה-VLAN והמחשב יקבל APIPA"],
     ans: 1,
-    explain: "הסבר: מתג (<span class='term-badge'>Switch</span>) מבודד <span class='term-badge'>Broadcast Domains</span> בין <span class='term-badge'>VLANs</span> שונים. הודעת ה-Discover ב-VLAN 10 לעולם לא תגיע ל-VLAN 20 ללא רכיב L3 מתווך!"
+    explain: "הסבר: מתג <span class='term-badge'>Switch</span> מבודד <span class='term-badge'>Broadcast Domains</span> בין <span class='term-badge'>VLANs</span> שונים. הודעת ה-Discover ב-VLAN 10 לעולם לא תגיע ל-VLAN 20 ללא רכיב L3 מתווך!"
   },
   {
     q: "תרחיש 2: מחשב מחובר בסניף חיפה. שרת ה-<span class='term-badge'>DHCP</span> הפיזי ממוקם בשרתיה המרכזית בתל אביב. בנתב של סניף חיפה הוגדרה הפקודה: <span class='code-text'>ip helper-address</span>. האם המחשב יקבל כתובת <span class='term-badge'>IP</span>?",
@@ -1068,7 +1068,7 @@ const scenariosData = [
   },
   {
     q: "תרחיש 3: מחשב מחובר לרשת <span class='code-text'>192.168.1.0/24</span> דרך סוויץ' <span class='term-badge'>L2</span> פשוט. הנתב המחבר לאינטרנט אינו מריץ <span class='term-badge'>DHCP</span>. אין שרת <span class='term-badge'>DHCP</span> ברשת זו. האם המחשב יקבל כתובת <span class='term-badge'>IP</span> משרת <span class='term-badge'>DHCP</span> ברשת אחרת מעבר לנתב?",
-    options: ["כן, הנתב יעביר את ה-Broadcast באופן אוטומטי לאינטרנט", "לא, הודעת ה-Discover תיחסם בנתב והמחשב יקבל כתובת APIPA (169.254.X.X)"],
+    options: ["כן, הנתב יעביר את ה-Broadcast באופן אוטומטי לאינטרנט", "לא, הודעת ה-Discover תיחסם בנתב והמחשב יקבל כתובת APIPA 169.254.X.X"],
     ans: 1,
     explain: "הסבר: נתב חוסם <span class='term-badge'>Broadcasts</span> כברירת מחדל. ללא הגדרת <span class='term-badge'>DHCP Relay Agent</span>, הודעת ה-Discover 'תיפול' בנתב והמחשב יישאר ללא מענה ויקבל כתובת <span class='term-badge'>APIPA</span>."
   }
@@ -1137,7 +1137,7 @@ const quizQuestions = [
     explain: "DHCP הוא Dynamic Host Configuration Protocol האחראי להקצאת כתובות אוטומטית."
   },
   {
-    q: "2. מהי סדרת השלבים הנכונה בתהליך החכירה (<span class='term-badge'>DORA</span>)?",
+    q: "2. מהי סדרת השלבים הנכונה בתהליך החכירה <span class='term-badge'>DORA</span>?",
     options: [
       "Data, Offer, Request, Access",
       "Discover, Offer, Request, Acknowledge",
@@ -1152,7 +1152,7 @@ const quizQuestions = [
     options: [
       "Unicast ישירות לכתובת השרת",
       "Multicast לקבוצת השרתים",
-      "Broadcast (שידור היקפי לכל הרשת)",
+      "Broadcast שידור היקפי לכל הרשת",
       "Anycast לרכיב הקרוב ביותר"
     ],
     ans: 2,
@@ -1170,7 +1170,7 @@ const quizQuestions = [
     explain: "כתובות APIPA מוקצות בטווח השמור 169.254.0.0/16."
   },
   {
-    q: "5. מחשב קיבל כתובת <span class='term-badge'>APIPA</span> (169.254.X.X). מהי המגבלה המרכזית שלו?",
+    q: "5. מחשב קיבל כתובת <span class='term-badge'>APIPA</span> 169.254.X.X. מהי המגבלה המרכזית שלו?",
     options: [
       "המחשב אינו יכול לתקשר כלל עם אף מכשיר",
       "המחשב יכול לתקשר ברשת המקומית בלבד אך לא לצאת לאינטרנט",
@@ -1185,7 +1185,7 @@ const quizQuestions = [
     options: [
       "Port 80 & 443",
       "Port 53 & 67",
-      "Port 67 (Server) & Port 68 (Client)",
+      "Port 67 Server & Port 68 Client",
       "Port 21 & 22"
     ],
     ans: 2,
@@ -1214,7 +1214,7 @@ const quizQuestions = [
     explain: "הפקודה במצב Configuration היא: ip dhcp pool <name>."
   },
   {
-    q: "9. מה קורה בפרק זמן <span class='term-badge'>T1</span> (כ-50% מזמן החכירה)?",
+    q: "9. מה קורה בפרק זמן <span class='term-badge'>T1</span> כ-50% מזמן החכירה?",
     options: [
       "הלקוח מנתק את החיבור לרשת מיד",
       "הלקוח פונה ב-Unicast לשרת המקורי לבקשת חידוש החכירה",
@@ -1225,10 +1225,10 @@ const quizQuestions = [
     explain: "ב-50% מתקופת החכירה (T1), הלקוח מנסה לחדש את החכירה מול השרת המקורי ב-Unicast."
   },
   {
-    q: "10. מהי מטרת הרכיב <span class='term-badge'>DHCP Relay Agent</span> (<span class='code-text'>ip helper-address</span>)?",
+    q: "10. מהי מטרת הרכיב <span class='term-badge'>DHCP Relay Agent</span> <span class='code-text'>ip helper-address</span>?",
     options: [
       "להגדיל את מהירות חלוקת הכתובות",
-      "לאפשר העברת בקשות DHCP ב-Broadcast ממעבר לנתב (Router) לשרת מרכזי ברשת אחרת",
+      "לאפשר העברת בקשות DHCP ב-Broadcast ממעבר לנתב Router לשרת מרכזי ברשת אחרת",
       "לחסום הודעות DHCP מבוססות APIPA",
       "להגדיר את מסיכת הרשת באופן אוטומטי"
     ],
@@ -1303,7 +1303,7 @@ const reflectionQuestions = [
   },
   {
     q: "2. רפלקציית <span class='term-badge'>APIPA</span> ופתרון תקלות: הגעת ללקוח ומצאת שלמחשב יש כתובת <span class='code-text'>169.254.45.12</span>. מה תהיה סדרת הבדיקות הראשיות שתבצע?",
-    hint: "בדיקת כבל רשת, בדיקת זמינות שרת DHCP, בדיקת הגדרות כרטיס רשת (Obtain IP automatically) ובדיקת Relay Agent."
+    hint: "בדיקת כבל רשת, בדיקת זמינות שרת DHCP, בדיקת הגדרות כרטיס רשת Obtain IP automatically ובדיקת Relay Agent."
   },
   {
     q: "3. חשיבה ארכיטקטונית: מתי כאיש רשתות תעדיף להגדיר כתובת <span class='term-badge'>IP</span> סטטית ומתי תעדיף להשתמש בהקצאת <span class='term-badge'>DHCP</span>?",
