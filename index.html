@@ -329,12 +329,12 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 
 <div class="grid2">
   <div class="card concept-card">
-    <h3>📌 פרוטוקול <span class="term-badge">DHCP</span> ותהליך <span class="term-badge">DORA</span></h3>
+    <h3>  פרוטוקול <span class="term-badge">DHCP</span> ותהליך <span class="term-badge">DORA</span></h3>
     <p><span class="tag static">DHCP UDP 67/68</span> פרוטוקול המקצה כתובות <span class="term-badge">IP</span>, מסיכת רשת, שער ברירת מחדל ושרתי <span class="term-badge">DNS</span> באופן אוטומטי למכשירים ברשת.</p>
     <p><span class="tag ospf">תהליך DORA</span> ארבעת שלבי החכירה: <span class="term-badge">Discover</span> שידור, <span class="term-badge">Offer</span> הצעה, <span class="term-badge">Request</span> בקשה, ו-<span class="term-badge">Acknowledge</span> אישור.</p>
   </div>
   <div class="card concept-card">
-    <h3>⚠️ מנגנון החירום: כתובת <span class="term-badge">APIPA</span></h3>
+    <h3>  מנגנון החירום: כתובת <span class="term-badge">APIPA</span></h3>
     <p><span class="tag apipa">APIPA Automatic Private IP</span> מנגנון גיבוי של מערכת ההפעלה המקצה כתובת עצמית כאשר שרת ה-<span class="term-badge">DHCP</span> אינו משיב.</p>
     <p><span class="tag apipa">טווח APIPA: 169.254.0.0/16</span> כתובת זו מאפשרת תקשורת מקומית בלבד בתוך ה-<span class="term-badge">LAN</span>, אך <b>אינה מאפשרת יציאה לאינטרנט</b> אין <span class="term-badge">Default Gateway</span>.</p>
   </div>
@@ -391,9 +391,9 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
     </div>
 
     <div class="pt-toolbar">
-        <button class="pt-tool-btn active">🖥️ הגדרות שרת DHCP</button>
-        <button class="pt-tool-btn" onclick="resetSimulation()">🔄 איפוס רשת</button>
-        <button class="pt-tool-btn" onclick="addNewClient()">➕ הוסף תחנת קצה Client</button>
+        <button class="pt-tool-btn active"> הגדרות שרת DHCP</button>
+        <button class="pt-tool-btn" onclick="resetSimulation()"> איפוס רשת</button>
+        <button class="pt-tool-btn" onclick="addNewClient()"> הוסף תחנת קצה Client</button>
     </div>
 
     <div class="pt-main-content">
@@ -488,7 +488,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 
             <div class="pt-sim-controls">
                 <div style="display:flex; gap:8px;">
-                    <button class="pt-btn-action" id="btn-start" onclick="startDORA()">▶️ התחל תהליך DORA</button>
+                    <button class="pt-btn-action" id="btn-start" onclick="startDORA()"> התחל תהליך DORA</button>
                     <button class="pt-btn-action pt-btn-pause" id="btn-pause" onclick="togglePause()" disabled>⏸️ השהה</button>
                 </div>
 
@@ -501,7 +501,7 @@ input.term-input { flex: 1; background: transparent; border: none; color: #FFFFF
 
             <div class="pt-explanation-box">
                 <div class="pt-exp-title">
-                    <span id="exp-step-title">📍 מוכן לסימולציה</span>
+                    <span id="exp-step-title"> מוכן לסימולציה</span>
                     <span id="exp-phase" style="font-size:12px; background:#e0f2fe; padding:2px 6px; border-radius:4px;">מצב המתנה</span>
                 </div>
                 <div class="pt-exp-text" id="exp-description">
@@ -601,7 +601,7 @@ Router(config)# <span class="hint">Type the command to create DHCP pool and pres
 </div>
 
 <div class="tab-btn-group">
-  <button class="tab-btn highlight-tab active" onclick="switchTab('no-dhcp-tab', this)">🚨 מי לא יקבל כתובת משרת DHCP? <span class="term-badge">Broadcasting & L3 Boundary</span></button>
+  <button class="tab-btn highlight-tab active" onclick="switchTab('no-dhcp-tab', this)"> מי לא יקבל כתובת משרת DHCP? <span class="term-badge">Broadcasting & L3 Boundary</span></button>
   <button class="tab-btn" onclick="switchTab('quiz-tab', this)">📝 מבדק 10 שאלות אמריקאי</button>
   <button class="tab-btn" onclick="switchTab('reflection-tab', this)">💡 שאלות רפלקציה מעצימות</button>
 </div>
