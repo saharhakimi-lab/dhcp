@@ -1,1399 +1,1509 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מסלול המידע – לומדים DHCP, APIPA ופרוטוקול DORA עם סהר</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Heebo:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<style>
-:root {
-  --cream: #fdfbf7;
-  --paper: #FFFFFF;
-  --ink: #1e293b;
-  --ink-soft: #475569;
-  --border: #cbd5e1;
-  --red: #dc2626;
-  --red-dark: #991b1b;
-  --purple-active: #7e22ce;
-  --purple-dark: #581c87;
-  --primary-blue: #2563eb;
-  --ospf-gold: #d97706;
-  --bg-green: #059669;
-  --discover-color: #ef4444;
-  --offer-color: #f59e0b;
-  --request-color: #3b82f6;
-  --ack-color: #10b981;
-  --radius: 16px;
-  --shadow: 0 4px 15px -3px rgba(0,0,0,0.05);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מסלול המידע – לומדים DHCP, APIPA ופרוטוקול DORA עם סהר</title>
 
-* { box-sizing: border-box; }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700;800&family=Heebo:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-body {
-  margin: 0; 
-  background-color: var(--cream); 
-  color: var(--ink);
-  font-family: 'Assistant', 'Heebo', sans-serif; 
-  line-height: 1.6;
-  padding-bottom: 120px;
-  position: relative;
-}
+    <style>
+        :root {
+            --bg: #fbf8ee;
+            --paper: #ffffff;
+            --ink: #20150f;
+            --soft: #3b2b22;
+            --muted: #5a4a40;
+            --line: #e6d9bf;
+            --red: #b91c1c;
+            --red-text: #a11a1a;
+            --red-soft: #fcebe7;
+            --red-edge: #e9b8ae;
+            --term: #0b5d73;
+            --term-soft: #e1f3f8;
+            --aside-bg: #f6eadc;
+            --aside-edge: #e2c9a8;
+            --aside-ink: #5b3a1a;
 
-/* רקע אורורה חי */
-body::before {
-  content: "";
-  position: fixed; inset: -20%;
-  z-index: -1;
-  background:
-      radial-gradient(40% 40% at 15% 20%, rgba(252,231,243,.45), transparent 70%),
-      radial-gradient(35% 35% at 85% 15%, rgba(204,251,241,.4), transparent 70%),
-      radial-gradient(45% 45% at 70% 85%, rgba(216,180,254,.35), transparent 70%),
-      radial-gradient(35% 35% at 10% 90%, rgba(254,243,199,.3), transparent 70%);
-  filter: blur(30px);
-  animation: aurora 22s ease-in-out infinite alternate;
-}
-@keyframes aurora {
-  0% { transform: translate3d(0,0,0) scale(1) rotate(0deg); }
-  100% { transform: translate3d(3%,-4%,0) scale(1.15) rotate(6deg); }
-}
+            --c-sky: #0e7490;   --c-sky-bg: #e3f4f9;
+            --c-green: #047857; --c-green-bg: #e1f5ee;
+            --c-amber: #b45309; --c-amber-bg: #fdf1dd;
+            --c-violet: #6d28d9; --c-violet-bg: #efe8fb;
 
-.wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-h1, h2, h3, h4 { font-weight: 700; margin: 0 0 10px; color: #0f172a; }
-p { margin: 0 0 14px; color: var(--ink-soft); font-size: 16px; }
+            --ok-bg: #d8f3e6; --ok-edge: #0b6b4a;
+            --bad-bg: #fcdcd6; --bad-edge: #a11a1a;
+            --shadow: 0 10px 30px -12px rgba(120, 40, 20, 0.18);
 
-/* סגנון מסגור מונחי אנגלית */
-.term-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  direction: ltr !important;
-  unicode-bidi: isolate !important;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85em;
-  padding: 2px 7px;
-  margin: 0 3px;
-  border-radius: 6px;
-  background-color: #f1f5f9;
-  border: 1.5px solid #cbd5e1;
-  color: #0f172a;
-  font-weight: 700;
-  line-height: 1.3;
-  vertical-align: middle;
-}
+            --font-body: 'Heebo', 'Assistant', system-ui, sans-serif;
+            --font-display: 'Rubik', 'Heebo', system-ui, sans-serif;
+            --font-code: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
-.code-text, .code-font {
-  direction: ltr !important;
-  unicode-bidi: isolate !important;
-  font-family: 'JetBrains Mono', monospace;
-  background-color: #f1f5f9;
-  border: 1.5px solid #cbd5e1;
-  padding: 2px 7px;
-  margin: 0 3px;
-  border-radius: 6px;
-  color: #0f172a;
-  font-size: 0.85em;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: middle;
-}
+            --discover-color: #ef4444;
+            --offer-color: #f59e0b;
+            --request-color: #3b82f6;
+            --ack-color: #10b981;
 
-/* אפקטים לאוואטר מטורלל */
-@keyframes crazy-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-@keyframes eye-glow {
-  0%, 100% { 
-      opacity: 1; 
-      transform: scale(1.2); 
-      box-shadow: 0 0 3px 1px #ff0000, 0 0 5px 2px #dc2626; 
-  }
-  50% { 
-      opacity: 0.1; 
-      transform: scale(0.8); 
-      box-shadow: 0 0 1px 0px #991b1b; 
-  }
-}
-@keyframes red-border-pulse {
-  0%, 100% { 
-      box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.8); 
-      border-color: #ef4444; 
-  }
-  50% { 
-      box-shadow: 0 0 5px 1px rgba(185, 28, 28, 0.4); 
-      border-color: #7f1d1d; 
-  }
-}
-.crazy-avatar-container {
-  animation: red-border-pulse 1.2s infinite alternate;
-}
-.crazy-avatar-img {
-  animation: crazy-spin 10s linear infinite;
-}
-.laser-eye {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background-color: #ff0000;
-  border-radius: 50%;
-  animation: eye-glow 3s infinite ease-in-out;
-  z-index: 20;
-}
+            --nav-h: 70px;
+        }
 
-/* כרטיסי Glassmorphism */
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: 20px;
-  box-shadow: 0 15px 35px -15px rgba(219, 39, 119, 0.12), inset 0 1px 0 #fff;
-  padding: 24px;
-}
+        body.dark {
+            --bg: #1a1412;
+            --paper: #251c18;
+            --ink: #f8efe7;
+            --soft: #eadfd5;
+            --muted: #d0c0b3;
+            --line: #43352d;
+            --red-text: #ff9b9b;
+            --red-soft: #3c1f1c;
+            --red-edge: #6d3a33;
+            --term: #7fdcf0;
+            --term-soft: #123640;
+            --aside-bg: #3a2c20;
+            --aside-edge: #6b5237;
+            --aside-ink: #f6dfc0;
+            --c-sky: #7fdcf0;   --c-sky-bg: rgba(14, 116, 144, 0.22);
+            --c-green: #6ee7b7; --c-green-bg: rgba(4, 120, 87, 0.24);
+            --c-amber: #fcd34d; --c-amber-bg: rgba(180, 83, 9, 0.26);
+            --c-violet: #c4b5fd; --c-violet-bg: rgba(109, 40, 217, 0.26);
+            --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+        }
 
-/* עיצוב כפתורי הטאבים: ברירת מחדל אדום, פעיל סגול */
-.tab-btn {
-  background-color: #dc2626 !important;
-  color: #ffffff !important;
-  border: 1.5px solid #b91c1c !important;
-  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
-  transition: all 0.2s ease;
-  padding: 10px 20px;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 15px;
-  cursor: pointer;
-}
-.tab-btn:hover {
-  background-color: #b91c1c !important;
-  transform: translateY(-1px);
-  box-shadow: 0 5px 12px rgba(220, 38, 38, 0.35);
-}
-.tab-btn.active {
-  background-color: var(--purple-active) !important;
-  color: #ffffff !important;
-  border-color: var(--purple-dark) !important;
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.4), 0 5px 15px rgba(126, 34, 206, 0.45);
-  transform: scale(1.03);
-}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 20px; }
+        @media (max-width: 600px) { html { font-size: 18px; } }
 
-.tab-btn-group { 
-  display: flex; 
-  gap: 10px; 
-  margin-bottom: 24px; 
-  border-bottom: 2px solid var(--border); 
-  padding-bottom: 12px; 
-  flex-wrap: wrap; 
-}
+        html body {
+            font-family: var(--font-body);
+            font-weight: 500;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
 
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+        button, input, textarea { font-family: inherit; }
+        button { cursor: pointer; }
+        h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 800; }
+        :focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }
 
-section { padding: 30px 0; border-top: 1px solid var(--border); }
-.section-title { font-size: 24px; color: #0f172a; font-weight: 800; }
+        body .container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 16px; }
 
-.card { background: rgba(255,255,255,0.9); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-@media(max-width:720px){ .grid2 { grid-template-columns: 1fr; } }
+        /* ---------- כותרת עליונה ---------- */
+        header {
+            background: var(--paper);
+            border-bottom: 2px solid var(--line);
+            padding: 16px 0;
+        }
+        .header-content { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 16px; }
+        @media (min-width: 900px) { .header-content { flex-direction: row; } }
+        .header-title-area { display: flex; align-items: center; gap: 16px; }
+        header h1 { font-size: 1.4rem; line-height: 1.3; color: var(--red-text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        header p { font-size: 0.85rem; line-height: 1.5; color: var(--muted); font-weight: 500; }
+        
+        .crazy-avatar-container {
+            position: relative; width: 60px; height: 60px; border-radius: 50%;
+            border: 3px solid var(--red); background: #fff; flex-shrink: 0;
+            overflow: hidden; box-shadow: 0 0 10px rgba(185, 28, 28, 0.4);
+        }
+        .crazy-avatar-img {
+            width: 100%; height: 100%; object-fit: cover;
+            animation: crazy-spin 12s linear infinite;
+        }
+        @keyframes crazy-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-.accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; background: rgba(255,255,255,0.9); }
-.acc-head { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 17px; color: #0f172a; }
-.acc-head:hover { background: #f8fafc; }
-.acc-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
-.acc-body-inner { padding: 0 20px 20px; font-size: 16px; }
-.accordion.open .acc-body { max-height: 600px; }
-.acc-arrow { transition: transform .3s; }
-.accordion.open .acc-arrow { transform: rotate(180deg); }
+        .header-badges { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .badge {
+            background: var(--paper); border: 2px solid var(--line); color: var(--ink);
+            font-size: 0.85rem; font-weight: 700; padding: 4px 16px; border-radius: 12px; line-height: 1.7;
+        }
+        .badge-success { border-color: var(--ok-edge); color: var(--ok-edge); }
+        body.dark .badge-success { color: #6ee7b7; border-color: #6ee7b7; }
+        
+        .mode-btn {
+            min-height: 48px; padding: 0 18px; border-radius: 12px;
+            background: var(--paper); color: var(--ink); border: 2px solid var(--line);
+            font-weight: 700; font-size: 0.85rem;
+        }
+        .mode-btn:hover { border-color: var(--red); }
 
-/* סימולטור Packet Tracer Container */
-.window-container {
-    width: 100%; max-width: 1000px; margin: 0 auto; background: #cbd5e1;
-    border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-    border: 2px solid #64748b; overflow: hidden; display: flex; flex-direction: column;
-}
-.window-header {
-    background: linear-gradient(to bottom, #334155, #1e293b); color: white;
-    padding: 10px 18px; display: flex; justify-content: space-between; align-items: center;
-    font-size: 15px; font-weight: bold; border-bottom: 2px solid #0284c7;
-}
-.window-title { display: flex; align-items: center; gap: 8px; }
-.window-controls { display: flex; gap: 6px; }
-.win-btn { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
-.win-close { background-color: #ef4444; }
-.win-min { background-color: #f59e0b; }
-.win-max { background-color: #10b981; }
+        /* ---------- כפתורי הטאבים ---------- */
+        .nav-tabs-container {
+            background: var(--bg);
+            border-bottom: 2px solid var(--line);
+            z-index: 50;
+        }
+        @media (min-width: 1100px) { .nav-tabs-container { position: sticky; top: 0; } }
+        nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 12px 0; }
+        @media (max-width: 1099px) { nav { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 680px) { nav { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { nav { grid-template-columns: 1fr; } }
 
-.pt-toolbar { background-color: #f1f5f9; padding: 10px; display: flex; gap: 10px; border-bottom: 1px solid #cbd5e1; overflow-x: auto; }
-.pt-tool-btn { background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; color: #334155; }
-.pt-tool-btn:hover { background-color: #e2e8f0; border-color: #0284c7; color: #0284c7; }
-.pt-tool-btn.active { background-color: #0284c7; color: white; border-color: #0369a1; }
+        .tab-btn, .sub-tab-btn {
+            display: flex; align-items: center; gap: 10px;
+            min-height: 64px; padding: 8px 14px;
+            text-align: right;
+            border-radius: 14px;
+            border: 2px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 0.8rem; font-weight: 800; line-height: 1.3;
+            transition: border-color 0.15s ease, background-color 0.15s ease;
+        }
+        .tab-btn:hover, .sub-tab-btn:hover { border-color: var(--red); }
+        .tab-btn.active, .sub-tab-btn.active {
+            background: #b91c1c; border-color: #b91c1c; color: #fff;
+        }
+        .tab-btn .num, .sub-tab-btn .num {
+            flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+            display: inline-grid; place-items: center;
+            background: var(--red-soft); color: var(--red-text);
+            font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; line-height: 1;
+        }
+        .tab-btn.active .num, .sub-tab-btn.active .num { background: #fff; color: #b91c1c; }
+        .tab-btn.active .aside, .sub-tab-btn.active .aside { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); color: #fff; }
 
-.pt-main-content { display: flex; padding: 12px; gap: 12px; height: 630px; }
-@media(max-width:850px){ .pt-main-content { flex-direction: column; height: auto; } }
+        .sub-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        @media (max-width: 768px) { .sub-tabs { grid-template-columns: 1fr; } }
 
-.pt-side-panel { width: 280px; background: white; border-radius: 12px; border: 1px solid #94a3b8; padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
-@media(max-width:850px){ .pt-side-panel { width: 100%; } }
+        /* ---------- פריסה ---------- */
+        main { flex-grow: 1; padding: 28px 0; }
+        .tab-content, .sub-tab-content { display: none; }
+        .tab-content.active, .sub-tab-content.active { display: block; }
 
-.pt-panel-title { font-size: 14px; font-weight: bold; color: #1e293b; border-bottom: 2px solid #0284c7; padding-bottom: 6px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-.pt-form-group { display: flex; flex-direction: column; gap: 3px; }
-.pt-form-group label { font-size: 12px; font-weight: bold; color: #475569; }
-.pt-form-group input { padding: 5px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; font-family: 'JetBrains Mono', monospace; }
+        /* ---------- כרטיסים ---------- */
+        .card {
+            background: var(--paper);
+            border: 2px solid var(--line);
+            border-radius: 22px;
+            padding: clamp(20px, 3vw, 36px);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        .card-title {
+            font-size: clamp(1.3rem, 3.2vw, 1.7rem); color: var(--red-text);
+            margin-bottom: 18px; line-height: 1.4;
+        }
+        h3.card-title { font-size: clamp(1.15rem, 2.8vw, 1.45rem); }
 
-.pt-workspace { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-.pt-canvas-container { flex: 1; min-height: 330px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #94a3b8; border-radius: 12px; position: relative; overflow: hidden; }
-.pt-canvas-bg { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 16px 16px; opacity: 0.5; }
+        /* ---------- תיבות הסבר ואקורדיון ---------- */
+        .accordion {
+            background: var(--paper); border: 2px solid var(--line);
+            border-radius: 18px; overflow: hidden; margin-bottom: 14px;
+        }
+        .acc-head {
+            padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; font-weight: 800; font-size: 0.95rem; color: var(--ink);
+            background: var(--paper); transition: background-color 0.2s ease;
+        }
+        .acc-head:hover { background: var(--aside-bg); }
+        .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .acc-body-inner { padding: 0 20px 20px; font-size: 0.95rem; color: var(--ink); border-top: 1px dashed var(--line); padding-top: 14px; }
+        .accordion.open .acc-body { max-height: 600px; }
+        .acc-arrow { transition: transform 0.3s; font-size: 1.2rem; color: var(--red-text); }
+        .accordion.open .acc-arrow { transform: rotate(180deg); }
 
-.pt-node { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 5; cursor: pointer; }
-.pt-node-icon { width: 55px; height: 55px; background-color: white; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; font-size: 26px; border: 2px solid #0284c7; }
-.pt-node-server { left: 80px; top: 150px; }
-.pt-node-client { right: 80px; top: 150px; }
-.pt-node-switch { left: 50%; top: 150px; transform: translateX(-50%); }
+        /* ---------- סימולטור Packet Tracer ---------- */
+        .pt-window-container {
+            width: 100%; background: var(--paper); border-radius: 20px;
+            border: 2px solid var(--line); overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: var(--shadow); margin-top: 16px;
+        }
+        .pt-window-header {
+            background: var(--aside-bg); color: var(--aside-ink);
+            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; font-weight: 800; border-bottom: 2px solid var(--line);
+        }
+        .pt-window-controls { display: flex; gap: 8px; }
+        .win-btn { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .win-close { background-color: #ef4444; } .win-min { background-color: #f59e0b; } .win-max { background-color: #10b981; }
 
-.pt-node-label { margin-top: 4px; font-size: 12px; font-weight: bold; background-color: rgba(255,255,255,0.9); padding: 2px 8px; border-radius: 8px; border: 1px solid #cbd5e1; color: #1e293b; text-align: center; }
-.pt-node-ip { font-size: 11px; color: #0284c7; direction: ltr; font-family: 'JetBrains Mono', monospace; font-weight: bold; }
-.pt-node-mac { font-size: 10px; color: #64748b; direction: ltr; font-family: 'JetBrains Mono', monospace; background: #ffffff; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; margin-top: 2px; }
+        .pt-toolbar { background: var(--bg); padding: 10px 16px; display: flex; gap: 10px; border-bottom: 2px solid var(--line); flex-wrap: wrap; }
+        .pt-tool-btn {
+            background: var(--paper); border: 2px solid var(--line); border-radius: 12px;
+            padding: 6px 14px; font-size: 0.8rem; font-weight: 800; color: var(--ink);
+            display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+        }
+        .pt-tool-btn:hover { border-color: var(--red); color: var(--red-text); }
+        .pt-tool-btn.active { background: var(--c-sky-bg); border-color: var(--c-sky); color: var(--c-sky); }
 
-.pt-cables-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .pt-main-content { display: flex; padding: 16px; gap: 16px; height: 600px; }
+        @media(max-width:900px){ .pt-main-content { flex-direction: column; height: auto; } }
 
-.pt-packet-envelope { 
-  position: absolute; 
-  width: 185px; 
-  background: #FFFFFF; 
-  border: 2px solid #0284c7; 
-  border-radius: 10px; 
-  z-index: 20; 
-  display: none; 
-  flex-direction: column; 
-  box-shadow: 0 10px 20px rgba(0,0,0,0.25); 
-  transform: translate(-50%, -50%); 
-  font-family: 'JetBrains Mono', monospace;
-  overflow: hidden;
-  direction: ltr;
-}
+        .pt-side-panel {
+            width: 290px; background: var(--bg); border-radius: 16px; border: 2px solid var(--line);
+            padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex-shrink: 0;
+        }
+        @media(max-width:900px){ .pt-side-panel { width: 100%; } }
 
-.pt-packet-header {
-  background: #0284c7;
-  color: white;
-  padding: 4px 8px;
-  font-size: 11px;
-  font-weight: bold;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+        .pt-panel-title { font-size: 0.85rem; font-weight: 800; color: var(--red-text); border-bottom: 2px dashed var(--line); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .pt-form-group { display: flex; flex-direction: column; gap: 4px; }
+        .pt-form-group label { font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+        .pt-form-group input {
+            padding: 6px 10px; border: 2px solid var(--line); border-radius: 10px; font-size: 0.85rem;
+            background: var(--paper); color: var(--ink); outline: none; font-family: var(--font-code); direction: ltr; text-align: left;
+        }
 
-.pt-packet-body {
-  padding: 6px;
-  font-size: 10px;
-  background: #F8FAFC;
-  line-height: 1.4;
-}
+        .pt-workspace { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+        .pt-canvas-container {
+            flex: 1; min-height: 320px; background: var(--paper); border: 2px solid var(--line);
+            border-radius: 16px; position: relative; overflow: hidden;
+        }
+        .pt-canvas-bg {
+            position: absolute; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--line) 1.5px, transparent 1.5px);
+            background-size: 18px 18px; opacity: 0.6;
+        }
 
-.pt-packet-row {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px dashed #E2E8F0;
-  padding: 2px 0;
-}
-.pt-packet-row:last-child { border-bottom: none; }
-.pt-packet-key { color: #64748b; font-weight: bold; }
-.pt-packet-val { color: #0f172a; font-weight: 600; }
+        .pt-node { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 5; cursor: pointer; }
+        .pt-node-icon {
+            width: 54px; height: 54px; background-color: var(--paper); border-radius: 16px;
+            box-shadow: var(--shadow); display: flex; justify-content: center; align-items: center;
+            font-size: 24px; border: 2px solid var(--c-sky);
+        }
+        .pt-node-server { left: 10%; top: 35%; }
+        .pt-node-client { right: 10%; top: 35%; }
+        .pt-node-switch { left: 50%; top: 35%; transform: translateX(-50%); }
 
-.pt-explanation-box { background-color: #ffffff; border-right: 4px solid #0284c7; border-radius: 8px; padding: 10px 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 4px; }
-.pt-exp-title { font-size: 14px; font-weight: bold; color: #0284c7; display: flex; justify-content: space-between; }
-.pt-exp-text { font-size: 13.5px; color: #334155; line-height: 1.5; font-weight: 600; }
+        .pt-node-label { margin-top: 4px; font-size: 0.75rem; font-weight: 800; background: var(--paper); padding: 2px 8px; border-radius: 8px; border: 1px solid var(--line); color: var(--ink); text-align: center; }
+        .pt-node-ip { font-size: 0.7rem; color: var(--c-sky); direction: ltr; font-family: var(--font-code); font-weight: 800; }
+        .pt-node-mac { font-size: 0.65rem; color: var(--muted); direction: ltr; font-family: var(--font-code); background: var(--bg); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); margin-top: 2px; }
 
-.pt-bottom-area { height: 180px; display: flex; gap: 10px; padding: 0 10px 10px 10px; }
-@media(max-width:720px){ .pt-bottom-area { flex-direction: column; height: auto; } }
+        .pt-cables-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-.pt-table-panel { flex: 1; background: white; border-radius: 8px; border: 1px solid #94a3b8; padding: 10px; display: flex; flex-direction: column; overflow: hidden; }
-.pt-dhcp-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
-.pt-dhcp-table th, .pt-dhcp-table td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; }
-.pt-dhcp-table th { background-color: #f8fafc; color: #475569; }
+        .pt-packet-envelope { 
+            position: absolute; width: 190px; background: var(--paper); border: 2px solid var(--c-sky); 
+            border-radius: 12px; z-index: 20; display: none; flex-direction: column; 
+            box-shadow: var(--shadow); transform: translate(-50%, -50%); 
+            font-family: var(--font-code); overflow: hidden; direction: ltr;
+        }
+        .pt-packet-header { background: var(--c-sky); color: #fff; padding: 4px 8px; font-size: 0.65rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+        .pt-packet-body { padding: 6px; font-size: 0.65rem; background: var(--paper); line-height: 1.4; color: var(--ink); }
+        .pt-packet-row { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line); padding: 2px 0; }
+        .pt-packet-row:last-child { border-bottom: none; }
+        .pt-packet-key { color: var(--muted); font-weight: 800; }
+        .pt-packet-val { color: var(--ink); font-weight: 700; }
 
-.pt-dora-steps { width: 230px; background: white; border-radius: 8px; border: 1px solid #94a3b8; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-.pt-step-item { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; background-color: #f1f5f9; color: #64748b; transition: all 0.3s; }
-.pt-step-item.active { color: white; transform: scale(1.02); }
-.pt-step-discover.active { background-color: var(--discover-color); }
-.pt-step-offer.active { background-color: var(--offer-color); }
-.pt-step-request.active { background-color: var(--request-color); }
-.pt-step-ack.active { background-color: var(--ack-color); }
-.pt-step-badge { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .pt-explanation-box { background: var(--c-sky-bg); border-right: 6px solid var(--c-sky); border-radius: 14px; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; }
+        .pt-exp-title { font-size: 0.85rem; font-weight: 800; color: var(--c-sky); display: flex; justify-content: space-between; align-items: center; }
+        .pt-exp-text { font-size: 0.85rem; color: var(--ink); line-height: 1.5; font-weight: 500; }
 
-.pt-sim-controls { display: flex; align-items: center; justify-content: space-between; background-color: #e2e8f0; padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; }
-.pt-btn-action { background-color: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
-.pt-btn-action:hover { background-color: #0369a1; }
-.pt-btn-action:disabled { background-color: #94a3b8; cursor: not-allowed; }
-.pt-btn-pause { background-color: #f59e0b; }
-.pt-btn-pause:hover { background-color: #d97706; }
+        .pt-bottom-area { display: flex; gap: 14px; padding: 0 16px 16px 16px; }
+        @media(max-width:768px){ .pt-bottom-area { flex-direction: column; } }
 
-/* טרמינל CLI */
-.terminal { background: #0F172A; border: 1.5px solid var(--border); border-radius: 12px; padding: 20px; color: #F8FAFC; shadow: inset 0 2px 8px rgba(0,0,0,0.5); }
-.term-topbar { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; }
-.dot { width: 12px; height: 12px; border-radius: 50%; }
-.dot.r { background: #EF4444; } .dot.y { background: #F59E0B; } .dot.g { background: #10B981; }
-.term-explain-box { background: #1E293B; border-right: 4px solid var(--purple-active); padding: 12px 16px; margin-bottom: 14px; font-size: 14px; color: #E2E8F0; text-align: right; border-radius: 6px; }
-.term-output { white-space: pre-wrap; color: #94A3B8; margin-bottom: 12px; min-height: 70px; font-family: 'JetBrains Mono', monospace; direction: ltr; text-align: left; font-size: 14px; }
-.term-output .ok { color: #34D399; font-weight: bold; }
-.term-output .bad { color: #F87171; font-weight: bold; }
-.term-output .hint { color: #FBBF24; }
-.term-input-row { display: flex; align-items: center; gap: 10px; border-top: 1px solid #334155; padding-top: 14px; direction: ltr; }
-.prompt { color: #34D399; font-family: 'JetBrains Mono', monospace; font-size: 14px; white-space: nowrap; font-weight: 700; }
-input.term-input { flex: 1; background: transparent; border: none; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none; direction: ltr; text-align: left; }
+        .pt-table-panel { flex: 1; background: var(--paper); border-radius: 14px; border: 2px solid var(--line); padding: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .pt-dhcp-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 6px; }
+        .pt-dhcp-table th, .pt-dhcp-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: center; }
+        .pt-dhcp-table th { background: var(--red-soft); color: var(--ink); font-weight: 800; }
 
-.task-box { background: rgba(255,255,255,0.9); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; font-size: 15px; }
-.task-title { font-weight: 800; margin-bottom: 6px; color: var(--ospf-gold); font-size: 17px; }
+        .pt-dora-steps { width: 240px; background: var(--paper); border-radius: 14px; border: 2px solid var(--line); padding: 12px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        @media(max-width:768px){ .pt-dora-steps { width: 100%; } }
+        .pt-step-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; background: var(--bg); color: var(--muted); transition: all 0.3s; }
+        .pt-step-item.active { color: #fff; transform: scale(1.02); }
+        .pt-step-discover.active { background-color: var(--discover-color); }
+        .pt-step-offer.active { background-color: var(--offer-color); }
+        .pt-step-request.active { background-color: var(--request-color); }
+        .pt-step-ack.active { background-color: var(--ack-color); }
+        .pt-step-badge { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
 
-.ex-card { background: rgba(255,255,255,0.9); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 18px; }
-.ex-num { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: var(--purple-active); font-weight: 700; margin-bottom: 6px; }
-.ex-q { font-weight: 700; font-size: 17px; color: #0f172a; margin-bottom: 14px; }
-.mc-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background 0.2s; font-size: 15px; font-weight: 600; }
-.mc-option:hover { background: #f8fafc; }
-.mc-option.selected { background: #f3e8ff; border-color: var(--purple-active); font-weight: 700; color: #581c87; }
-.ex-textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: #ffffff; font-family: 'Assistant', sans-serif; font-size: 15px; font-weight: 600; direction: rtl; text-align: right; margin-bottom: 10px; min-height: 90px; }
-.ex-feedback { font-size: 14px; margin-top: 10px; padding: 12px 16px; border-radius: 8px; display: none; font-weight: 700; }
-.ex-feedback.correct { display: block; background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-.ex-feedback.wrong { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .pt-sim-controls { display: flex; align-items: center; justify-content: space-between; background: var(--aside-bg); padding: 10px 16px; border-radius: 12px; border: 2px solid var(--line); flex-wrap: wrap; gap: 10px; }
 
-.quiz-score-box { background: rgba(255,255,255,0.95); border: 2px solid var(--purple-active); border-radius: var(--radius); padding: 24px; text-align: center; margin-bottom: 24px; }
-.score-num { font-size: 42px; font-weight: 800; color: var(--purple-active); font-family: 'JetBrains Mono', monospace; }
+        /* ---------- טרמינל CLI ---------- */
+        .terminal { background: #0f172a; border: 2px solid var(--line); border-radius: 18px; padding: 20px; color: #f8fafc; box-shadow: var(--shadow); }
+        .term-topbar { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.r { background: #ef4444; } .dot.y { background: #f59e0b; } .dot.g { background: #10b981; }
+        .term-explain-box { background: #1e293b; border-right: 4px solid var(--c-violet); padding: 12px 16px; margin-bottom: 14px; font-size: 0.85rem; color: #e2e8f0; text-align: right; border-radius: 8px; }
+        .term-output { white-space: pre-wrap; color: #94a3b8; margin-bottom: 12px; min-height: 70px; font-family: var(--font-code); direction: ltr; text-align: left; font-size: 0.85rem; line-height: 1.6; }
+        .term-output .ok { color: #34d399; font-weight: 800; }
+        .term-output .bad { color: #f87171; font-weight: 800; }
+        .term-output .hint { color: #fbbf24; }
+        .term-input-row { display: flex; align-items: center; gap: 10px; border-top: 1px solid #334155; padding-top: 14px; direction: ltr; }
+        .prompt { color: #34d399; font-family: var(--font-code); font-size: 0.85rem; white-space: nowrap; font-weight: 800; }
+        input.term-input { flex: 1; background: transparent; border: none; color: #ffffff; font-family: var(--font-code); font-size: 0.85rem; outline: none; direction: ltr; text-align: left; }
 
-.btn { background: var(--purple-active); color: #FFFFFF; border: none; border-radius: 12px; padding: 12px 24px; font-family: 'Assistant', sans-serif; font-weight: 800; font-size: 15px; cursor: pointer; transition: background 0.2s; shadow: 0 4px 10px rgba(126, 34, 206, 0.3); }
-.btn:hover { background: var(--purple-dark); }
+        .task-box { background: var(--paper); border: 2px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 18px; }
+        .task-title { font-weight: 800; margin-bottom: 6px; color: var(--c-amber); font-size: 1rem; }
 
-.completion { text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.95); border: 2px solid var(--bg-green); border-radius: var(--radius); display: none; margin-top: 20px; }
-.completion.show { display: block; }
-.footer-note { text-align: center; color: var(--ink-soft); font-size: 13px; margin-top: 50px; font-weight: 700; }
-</style>
+        /* ---------- תרחישים, שאלות ורפלקציה ---------- */
+        .ex-card { background: var(--paper); border: 2px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 18px; box-shadow: var(--shadow); }
+        .ex-num { font-size: 0.75rem; font-family: var(--font-code); color: var(--red-text); font-weight: 800; margin-bottom: 6px; }
+        .ex-q { font-weight: 800; font-size: 0.95rem; color: var(--ink); margin-bottom: 14px; line-height: 1.6; }
+        .mc-option {
+            display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+            border: 2px solid var(--line); border-radius: 12px; margin-bottom: 10px;
+            cursor: pointer; transition: all 0.2s; font-size: 0.9rem; font-weight: 600; background: var(--paper); color: var(--ink);
+        }
+        .mc-option:hover { border-color: var(--red); }
+        .mc-option.selected { background: var(--c-amber-bg); border-color: var(--c-amber); font-weight: 800; color: var(--ink); }
+        .ex-textarea {
+            width: 100%; padding: 12px 16px; border: 2px solid var(--line); border-radius: 12px;
+            background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 0.9rem;
+            font-weight: 500; direction: rtl; text-align: right; margin-bottom: 10px; min-height: 90px; outline: none;
+        }
+        .ex-textarea:focus { border-color: var(--red); }
+        .ex-feedback { font-size: 0.85rem; margin-top: 10px; padding: 12px 16px; border-radius: 12px; display: none; font-weight: 700; line-height: 1.7; }
+        .ex-feedback.correct { display: block; background: var(--ok-bg); color: var(--ok-edge); border: 2px solid var(--ok-edge); }
+        .ex-feedback.wrong { display: block; background: var(--bad-bg); color: var(--bad-edge); border: 2px solid var(--bad-edge); }
+
+        .quiz-score-box { background: var(--paper); border: 2px solid var(--red); border-radius: 20px; padding: 24px; text-align: center; margin-bottom: 24px; box-shadow: var(--shadow); }
+        .score-num { font-size: 2.2rem; font-weight: 800; color: var(--red-text); font-family: var(--font-code); direction: ltr; }
+
+        /* ---------- כפתורים ---------- */
+        .btn {
+            background: var(--red); color: #fff; border: 2px solid var(--red);
+            min-height: 48px; padding: 0 22px; font-size: 0.85rem; font-weight: 800; border-radius: 14px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+        }
+        .btn:hover { background: #991b1b; border-color: #991b1b; }
+        .btn-dark { background: var(--paper); color: var(--ink); border: 2px solid var(--line); }
+        .btn-dark:hover { border-color: var(--red); }
+
+        .completion { text-align: center; padding: 36px 20px; background: var(--ok-bg); border: 2px solid var(--ok-edge); border-radius: 20px; display: none; margin-top: 20px; }
+        .completion.show { display: block; }
+
+        /* ---------- בוט עזר צף למורה ---------- */
+        .floating-bot-container { position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+        .floating-bot-card {
+            width: 340px; max-width: calc(100vw - 40px);
+            background: var(--paper); color: var(--ink);
+            border: 2px solid var(--line); border-radius: 20px;
+            padding: 18px; box-shadow: 0 14px 34px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .bot-header { display: flex; align-items: center; gap: 14px; border-bottom: 2px dashed var(--line); padding-bottom: 12px; }
+        .bot-header h4 { font-size: 1.05rem; color: var(--red-text); line-height: 1.4; }
+        .bot-header span.sub { font-size: 0.8rem; color: var(--muted); }
+        .bot-avatar-spinning {
+            width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+            border: 3px solid var(--red); background: #fff;
+        }
+        #bot-tip { font-size: 0.9rem; line-height: 1.7; color: var(--ink); background: var(--bg); border: 2px dashed var(--red-edge); padding: 12px; border-radius: 14px; }
+        .bot-toggle-btn {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--paper); border: 2px solid var(--red); color: var(--red-text);
+            padding: 0 22px; min-height: 60px; border-radius: 9999px; font-weight: 800; font-size: 0.85rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+        .gemini-bot-btn {
+            background: var(--red); color: #fff; text-decoration: none; padding: 12px 14px; border-radius: 14px;
+            font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .gemini-bot-btn:hover { background: #991b1b; }
+
+        footer {
+            background: var(--paper); color: var(--muted); padding: 22px 0 100px; text-align: center; font-size: 0.8rem;
+            margin-top: auto; border-top: 2px solid var(--line);
+        }
+
+        /* ---------- כלי עזר: RTL/LTR ---------- */
+        .eng-tag {
+            display: inline-block; direction: ltr; unicode-bidi: isolate; text-align: left;
+            font-family: var(--font-code); font-size: 0.8em; font-weight: 700; line-height: 1.5;
+            padding: 0 0.45em; margin: 0 0.15em; border-radius: 7px;
+            border: 1.5px solid var(--term); background: var(--term-soft); color: var(--term);
+            white-space: nowrap;
+        }
+        .code-font, .code-text {
+            direction: ltr !important; unicode-bidi: isolate !important;
+            font-family: var(--font-code); font-size: 0.85em; font-weight: 700;
+            background: var(--bg); border: 1.5px solid var(--line); padding: 1px 6px;
+            border-radius: 6px; color: var(--ink); display: inline-block;
+        }
+        .num { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); font-weight: 700; font-size: 0.94em; color: var(--red-text); }
+        .aside {
+            display: inline; padding: 1px 10px; margin: 0 3px; border-radius: 999px;
+            background: var(--aside-bg); border: 1px solid var(--aside-edge); color: var(--aside-ink);
+            font-weight: 600; font-size: 0.92em; -webkit-box-decoration-break: clone; box-decoration-break: clone;
+        }
+        .aside .num { color: inherit; }
+
+        ::-webkit-scrollbar { height: 10px; width: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+    </style>
 </head>
 <body>
 
-<!-- TOP HEADER WITH CRAZY AVATAR -->
-<header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 py-3 shadow-sm mb-6">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <!-- Crazy Avatar -->
-            <div class="relative w-12 h-12 rounded-full overflow-hidden border-2 crazy-avatar-container shadow-md flex-shrink-0 bg-slate-100 flex items-center justify-center">
-                <img src="https://lh3.googleusercontent.com/d/1oIkZlLHZWtFgoDblyxziTALQZwsyxAOo" alt="אוואטר מטורלל" class="w-full h-full object-cover crazy-avatar-img">
-                <div class="laser-eye" style="top: 40%; right: 38%;"></div>
-                <div class="laser-eye" style="top: 40%; right: 54%;"></div>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="header-title-area">
+                <div class="crazy-avatar-container">
+                    <img src="https://lh3.googleusercontent.com/d/1oIkZlLHZWtFgoDblyxziTALQZwsyxAOo" alt="אווטאר" class="crazy-avatar-img">
+                </div>
+                <div>
+                    <h1>
+                        <span>אקדמיית שותפי הרשת של סהר</span>
+                        <span class="eng-tag">LAYER_7_4</span>
+                    </h1>
+                    <p>מסלול המידע – לומדים <span class="eng-tag">DHCP</span>, <span class="eng-tag">APIPA</span> ותהליך <span class="eng-tag">DORA</span></p>
+                </div>
             </div>
-            <div>
-                <h1 class="font-extrabold text-lg text-slate-800 tracking-tight flex items-center gap-2">
-                    <span>אקדמיית שותפי הרשת של סהר</span>
-                    <span class="term-badge" style="background:#fce7f3; border-color:#f472b6; color:#9d174d;">LAYER_7_4</span>
-                </h1>
-                <p class="text-xs text-slate-600 font-semibold">פרוטוקול <span class="term-badge">DHCP</span>, <span class="term-badge">APIPA</span> ותהליך <span class="term-badge">DORA</span></p>
+            <div class="header-badges">
+                <span class="badge">מומחה הקצאת כתובות</span>
+                <span class="badge badge-success">מגמת תקשוב</span>
+                <button class="mode-btn" id="darkToggleBtn" onclick="toggleDark()">🌙 מצב לילה</button>
             </div>
         </div>
+    </header>
+
+    <!-- Nav Tabs -->
+    <div class="nav-tabs-container">
+        <div class="container">
+            <nav>
+                <button onclick="switchTab('s1')" id="tab-s1" class="tab-btn active"><span class="num">1</span><span class="lbl">מה זה <span class="eng-tag">DHCP</span>?</span></button>
+                <button onclick="switchTab('s2')" id="tab-s2" class="tab-btn"><span class="num">2</span><span class="lbl">שאלות עומק והסברים</span></button>
+                <button onclick="switchTab('s3')" id="tab-s3" class="tab-btn"><span class="num">3</span><span class="lbl">סימולטור <span class="eng-tag">DORA</span></span></button>
+                <button onclick="switchTab('s4')" id="tab-s4" class="tab-btn"><span class="num">4</span><span class="lbl">הגדרת <span class="eng-tag">CLI</span> בסיסקו</span></button>
+                <button onclick="switchTab('s5')" id="tab-s5" class="tab-btn"><span class="num">5</span><span class="lbl">מבדק, תקלות ורפלקציה</span></button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="container">
         
-        <!-- Gamification & Actions -->
-        <div class="flex items-center gap-3">
-            <div class="hidden md:flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
-                <span class="text-xs text-slate-500 font-bold">רמה:</span>
-                <span class="text-xs font-extrabold text-sky-700">מומחה הקצאת כתובות</span>
-            </div>
-            <a class="bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs px-4 py-2 rounded-xl transition-all shadow flex items-center gap-1.5" href="https://gemini.google.com/gem/167016ac4a4b/66c3b83daa7940ef?usp=sharing" target="_blank" rel="noopener">
-                <i data-lucide="bot" class="w-4 h-4"></i>
-                <span>Gemini AI</span>
-            </a>
-        </div>
-    </div>
-</header>
-
-<div class="wrap">
-
-<!-- חלק 1 -->
-<section id="s1">
-<div class="mb-4">
-  <h2 class="section-title">01. מה זה <span class="term-badge">DHCP</span>?</h2>
-</div>
-
-<div class="glass-card">
-  <p class="text-lg leading-relaxed font-semibold text-slate-800" style="direction: rtl; text-align: right;">
-    פרוטוקול <span class="term-badge">DHCP</span> מקצה כתובות <span class="term-badge">IP</span>, מסיכת רשת, שער ברירת מחדל ושרתי <span class="term-badge">DNS</span> באופן אוטומטי לרכיבים ברשת דרך ארבעת שלבי תהליך <span class="term-badge">DORA</span> כולל <span class="term-badge">Discover</span>, <span class="term-badge">Offer</span>, <span class="term-badge">Request</span> ו-<span class="term-badge">Acknowledge</span>. במקרה של חוסר מענה, מופעל מנגנון החירום <span class="term-badge">APIPA</span> המקצה כתובת עצמית בטווח <span class="term-badge">169.254.0.0/16</span> המאפשרת תקשורת מקומית בלבד בתוך ה-<span class="term-badge">LAN</span> ללא יציאה לאינטרנט.
-  </p>
-</div>
-</section>
-
-<!-- חלק 2 -->
-<section id="s2">
-<div class="mb-4">
-  <h2 class="section-title">02. שאלות עומק והסברים מורחבים</h2>
-</div>
-
-<div id="acc1" class="accordion">
-  <div class="acc-head" onclick="toggleAcc('acc1')">
-    <span>למה שלב <span class="term-badge">Request</span> נשלח ב-<span class="term-badge">Broadcast</span> מוחלט גם ברמת ה-IP וגם ברמת ה-MAC?</span>
-    <span class="acc-arrow">▾</span>
-  </div>
-  <div class="acc-body"><div class="acc-body-inner">
-    <p>במידה וקיימים מספר שרתי <span class="term-badge">DHCP</span> ברשת, הלקוח עשוי לקבל מספר הצעות <span class="term-badge">Offer</span>. כאשר הלקוח שולח הודעת <span class="term-badge">Request</span> בשידור היקפי <span class="term-badge">Broadcast</span> לכל רכיבי המקטע (<span class="code-font">Dst MAC: FFFF.FFFF.FFFF</span>), הוא מודיע לכל השרתים ברשת באיזו הצעה הוא בחר. בכך הוא מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר הכתובות (<span class="term-badge">Address Pool</span>).</p>
-  </div></div>
-</div>
-
-<div id="acc2" class="accordion">
-  <div class="acc-head" onclick="toggleAcc('acc2')">
-    <span>מהם זמני חידוש החכירה (<span class="term-badge">Lease Renewal T1 T2</span>)?</span>
-    <span class="acc-arrow">▾</span>
-  </div>
-  <div class="acc-body"><div class="acc-body-inner">
-    <p>הלקוח אינו ממתין לתום זמן החכירה כדי לחדש כתובת: ב-50% מפרק הזמן (<span class="term-badge">T1 Timer</span>), הלקוח פונה ב-<span class="term-badge">Unicast</span> לשרת המקורי לבקשת חידוש. במידה והשרת לא משיב, ב-87.5% מפרק הזמן (<span class="term-badge">T2 Timer</span>), הלקוח יוצא ב-<span class="term-badge">Broadcast</span> לכל השרתים ברשת כדי למנוע נתוק תקשורת.</p>
-  </div></div>
-</div>
-</section>
-
-<!-- חלק 3: הסימולטור המרכזי -->
-<section id="s3">
-<div class="mb-4">
-  <h2 class="section-title">03. מדמה שרת <span class="term-badge">DHCP</span>, הגדרת Pool וסימולציית תהליך <span class="term-badge">DORA</span></h2>
-</div>
-<p style="font-size: 16px; font-weight: 600;" class="mb-4">השתמש בסימולטור המרכזי שלפניך: הגדר את פרמטרי השרת, לחץ על "התחל תהליך DORA" ועקוב אחר תנועת מעטפת המידע המציגה את נתוני ה-<b>L2 Frame</b> וה-<b>L3 Packet</b> המתעדכנים בלייב.</p>
-
-<div class="window-container">
-    <div class="window-header">
-        <div class="window-title">
-            <span>🌐</span>
-            <span>Cisco Packet Tracer – מדמה שרת DHCP ותצוגת Frame & Packet DORA</span>
-        </div>
-        <div class="window-controls">
-            <span class="win-btn win-min"></span>
-            <span class="win-btn win-max"></span>
-            <span class="win-btn win-close"></span>
-        </div>
-    </div>
-
-    <div class="pt-toolbar">
-        <button class="pt-tool-btn active"><i data-lucide="settings" class="w-4 h-4"></i> הגדרות שרת DHCP</button>
-        <button class="pt-tool-btn" onclick="resetSimulation()"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> איפוס רשת</button>
-        <button class="pt-tool-btn" onclick="addNewClient()"><i data-lucide="plus-circle" class="w-4 h-4"></i> הוסף תחנת קצה Client</button>
-    </div>
-
-    <div class="pt-main-content">
-        <div class="pt-side-panel">
-            <div class="pt-panel-title">
-                <span>⚙️ הגדרות Pool שרת</span>
-                <span style="font-size: 10px; color: #0284c7; font-weight: 800;">DHCP Service ON</span>
-            </div>
-
-            <div class="pt-form-group">
-                <label>שם ה-Pool</label>
-                <input type="text" value="ServerPool" readonly style="background:#f1f5f9;">
-            </div>
-
-            <div class="pt-form-group">
-                <label>שער ברירת מחדל Default Gateway</label>
-                <input type="text" id="gw-ip" value="192.168.1.1">
-            </div>
-
-            <div class="pt-form-group">
-                <label>שרת DNS</label>
-                <input type="text" id="dns-ip" value="8.8.8.8">
-            </div>
-
-            <div class="pt-form-group">
-                <label>כתובת IP התחלתית</label>
-                <input type="text" id="start-ip" value="192.168.1.10">
-            </div>
-
-            <div class="pt-form-group">
-                <label>מסכת רשת Subnet Mask</label>
-                <input type="text" id="subnet-mask" value="255.255.255.0">
-            </div>
-
-            <div class="pt-form-group">
-                <label>כמות כתובות מקסימלית</label>
-                <input type="number" id="max-users" value="50" min="5" max="250">
-            </div>
-
-            <button class="pt-btn-action" style="margin-top: 5px; justify-content: center;" onclick="saveSettings()">💾 שמור הגדרות שרת</button>
-            
-            <div style="margin-top: 8px; padding: 8px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600;">
-                💡 <b>טיפ לתלמיד:</b> שרת ה-DHCP מקצה כתובות מוכנות מראש באופן אוטומטי במקום הגדרה ידנית בכל מחשב.
-            </div>
-        </div>
-
-        <div class="pt-workspace">
-            <div class="pt-canvas-container" id="canvas">
-                <div class="pt-canvas-bg"></div>
-
-                <svg class="pt-cables-svg" id="cables-svg">
-                    <line id="line-server-switch" x1="110" y1="180" x2="50%" y2="180" stroke="#475569" stroke-width="3" stroke-dasharray="4"/>
-                    <line id="line-client-switch" x1="85%" y1="180" x2="50%" y2="180" stroke="#475569" stroke-width="3" stroke-dasharray="4"/>
-                </svg>
-
-                <div class="pt-node pt-node-server" id="node-server">
-                    <div class="pt-node-icon">🖥️</div>
-                    <div class="pt-node-label">DHCP-Server</div>
-                    <div class="pt-node-ip">192.168.1.254</div>
-                    <div class="pt-node-mac">MAC 000B.12C4.9999</div>
+        <!-- Tab 1: מה זה DHCP -->
+        <section id="content-s1" class="tab-content active">
+            <div class="card">
+                <h2 class="card-title">01. מה זה <span class="eng-tag">DHCP</span>?</h2>
+                <div style="font-size: 1.05rem; line-height: 1.8;">
+                    <p>
+                        פרוטוקול <span class="eng-tag">DHCP</span> מקצה כתובות <span class="eng-tag">IP</span>, מסיכת רשת, שער ברירת מחדל ושרתי <span class="eng-tag">DNS</span> באופן אוטומטי לרכיבים ברשת דרך ארבעת שלבי תהליך <span class="eng-tag">DORA</span> כולל <span class="eng-tag">Discover</span>, <span class="eng-tag">Offer</span>, <span class="eng-tag">Request</span> ו-<span class="eng-tag">Acknowledge</span>. במקרה של חוסר מענה, מופעל מנגנון החירום <span class="eng-tag">APIPA</span> המקצה כתובת עצמית בטווח <span class="code-font">169.254.0.0/16</span> המאפשרת תקשורת מקומית בלבד בתוך ה-<span class="eng-tag">LAN</span> ללא יציאה לאינטרנט.
+                    </p>
                 </div>
+            </div>
+        </section>
 
-                <div class="pt-node pt-node-switch" id="node-switch">
-                    <div class="pt-node-icon" style="border-radius: 50%; border-color: #64748b;">🔀</div>
-                    <div class="pt-node-label">Switch-2960</div>
-                    <div class="pt-node-ip">L2 Switch</div>
-                    <div class="pt-node-mac">MAC 0011.2233.4455</div>
-                </div>
+        <!-- Tab 2: שאלות עומק -->
+        <section id="content-s2" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">02. שאלות עומק והסברים מורחבים</h2>
 
-                <div class="pt-node pt-node-client" id="node-client">
-                    <div class="pt-node-icon" id="client-icon">💻</div>
-                    <div class="pt-node-label" id="client-name">PC-Client-1</div>
-                    <div class="pt-node-ip" id="client-ip-display">DHCP ממתין</div>
-                    <div class="pt-node-mac">MAC 000A.41A1.1111</div>
-                </div>
-
-                <div class="pt-packet-envelope" id="packet">
-                    <div class="pt-packet-header" id="packet-header">
-                        <span id="packet-tag">DORA</span>
-                        <span id="packet-proto">UDP 67 68</span>
+                <div id="acc1" class="accordion">
+                    <div class="acc-head" onclick="toggleAcc('acc1')">
+                        <span>למה שלב <span class="eng-tag">Request</span> נשלח ב-<span class="eng-tag">Broadcast</span> מוחלט גם ברמת ה-IP וגם ברמת ה-MAC?</span>
+                        <span class="acc-arrow">▾</span>
                     </div>
-                    <div class="pt-packet-body">
-                        <div class="pt-packet-row"><span class="pt-packet-key">Src IP</span><span class="pt-packet-val" id="pkt-src-ip">0.0.0.0</span></div>
-                        <div class="pt-packet-row"><span class="pt-packet-key">Dst IP</span><span class="pt-packet-val" id="pkt-dst-ip">255.255.255.255</span></div>
-                        <div class="pt-packet-row"><span class="pt-packet-key">Src MAC</span><span class="pt-packet-val" id="pkt-src-mac">000A.41A1.1111</span></div>
-                        <div class="pt-packet-row"><span class="pt-packet-key">Dst MAC</span><span class="pt-packet-val" id="pkt-dst-mac">FFFF.FFFF.FFFF</span></div>
+                    <div class="acc-body">
+                        <div class="acc-body-inner">
+                            <p>במידה וקיימים מספר שרתי <span class="eng-tag">DHCP</span> ברשת, הלקוח עשוי לקבל מספר הצעות <span class="eng-tag">Offer</span>. כאשר הלקוח שולח הודעת <span class="eng-tag">Request</span> בשידור היקפי <span class="eng-tag">Broadcast</span> לכל רכיבי המקטע (<span class="code-font">Dst MAC: FFFF.FFFF.FFFF</span>), הוא מודיע לכל השרתים ברשת באיזו הצעה הוא בחר. בכך הוא מאפשר לשרתים שלא נבחרו לשחרר את הכתובת שהציעו בחזרה למאגר הכתובות (<span class="eng-tag">Address Pool</span>).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="acc2" class="accordion">
+                    <div class="acc-head" onclick="toggleAcc('acc2')">
+                        <span>מהם זמני חידוש החכירה (<span class="eng-tag">Lease Renewal T1 T2</span>)?</span>
+                        <span class="acc-arrow">▾</span>
+                    </div>
+                    <div class="acc-body">
+                        <div class="acc-body-inner">
+                            <p>הלקוח אינו ממתין לתום זמן החכירה כדי לחדש כתובת: ב-50% מפרק הזמן (<span class="eng-tag">T1 Timer</span>), הלקוח פונה ב-<span class="eng-tag">Unicast</span> לשרת המקורי לבקשת חידוש. במידה והשרת לא משיב, ב-87.5% מפרק הזמן (<span class="eng-tag">T2 Timer</span>), הלקוח יוצא ב-<span class="eng-tag">Broadcast</span> לכל השרתים ברשת כדי למנוע נתוק תקשורת.</p>
+                        </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="pt-sim-controls">
-                <div style="display:flex; gap:8px;">
-                    <button class="pt-btn-action" id="btn-start" onclick="startDORA()">▶ התחל תהליך DORA</button>
-                    <button class="pt-btn-action pt-btn-pause" id="btn-pause" onclick="togglePause()" disabled>⏸️ השהה</button>
+        <!-- Tab 3: הסימולטור המרכזי -->
+        <section id="content-s3" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">03. מדמה שרת <span class="eng-tag">DHCP</span>, הגדרת Pool וסימולציית תהליך <span class="eng-tag">DORA</span></h2>
+                <p style="margin-bottom: 16px;">השתמש בסימולטור המרכזי שלפניך: הגדר את פרמטרי השרת, לחץ על "התחל תהליך DORA" ועקוב אחר תנועת מעטפת המידע המציגה את נתוני ה-<b>L2 Frame</b> וה-<b>L3 Packet</b> המתעדכנים בלייב.</p>
+
+                <div class="pt-window-container">
+                    <div class="pt-window-header">
+                        <div>🌐 Cisco Packet Tracer – מדמה שרת DHCP ותצוגת Frame & Packet DORA</div>
+                        <div class="pt-window-controls">
+                            <span class="win-btn win-min"></span>
+                            <span class="win-btn win-max"></span>
+                            <span class="win-btn win-close"></span>
+                        </div>
+                    </div>
+
+                    <div class="pt-toolbar">
+                        <button class="pt-tool-btn active"><i data-lucide="settings" class="w-4 h-4"></i> הגדרות שרת DHCP</button>
+                        <button class="pt-tool-btn" onclick="resetSimulation()"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> איפוס רשת</button>
+                        <button class="pt-tool-btn" onclick="addNewClient()"><i data-lucide="plus-circle" class="w-4 h-4"></i> הוסף תחנת קצה Client</button>
+                    </div>
+
+                    <div class="pt-main-content">
+                        <div class="pt-side-panel">
+                            <div class="pt-panel-title">
+                                <span>⚙️ הגדרות Pool שרת</span>
+                                <span style="font-size: 0.7rem; color: var(--c-sky); font-weight: 800;">DHCP Service ON</span>
+                            </div>
+
+                            <div class="pt-form-group">
+                                <label>שם ה-Pool</label>
+                                <input type="text" value="ServerPool" readonly style="opacity:0.7;">
+                            </div>
+
+                            <div class="pt-form-group">
+                                <label>שער ברירת מחדל Default Gateway</label>
+                                <input type="text" id="gw-ip" value="192.168.1.1">
+                            </div>
+
+                            <div class="pt-form-group">
+                                <label>שרת DNS</label>
+                                <input type="text" id="dns-ip" value="8.8.8.8">
+                            </div>
+
+                            <div class="pt-form-group">
+                                <label>כתובת IP התחלתית</label>
+                                <input type="text" id="start-ip" value="192.168.1.10">
+                            </div>
+
+                            <div class="pt-form-group">
+                                <label>מסכת רשת Subnet Mask</label>
+                                <input type="text" id="subnet-mask" value="255.255.255.0">
+                            </div>
+
+                            <div class="pt-form-group">
+                                <label>כמות כתובות מקסימלית</label>
+                                <input type="number" id="max-users" value="50" min="5" max="250">
+                            </div>
+
+                            <button class="btn" style="margin-top: 6px; min-height: 40px;" onclick="saveSettings()">💾 שמור הגדרות שרת</button>
+                            
+                            <div style="margin-top: 8px; padding: 10px; background: var(--aside-bg); border-radius: 10px; font-size: 0.75rem; color: var(--aside-ink);">
+                                💡 <b>טיפ לתלמיד:</b> שרת ה-DHCP מקצה כתובות מוכנות מראש באופן אוטומטי במקום הגדרה ידנית בכל מחשב.
+                            </div>
+                        </div>
+
+                        <div class="pt-workspace">
+                            <div class="pt-canvas-container" id="canvas">
+                                <div class="pt-canvas-bg"></div>
+
+                                <svg class="pt-cables-svg" id="cables-svg">
+                                    <line id="line-server-switch" x1="15%" y1="45%" x2="50%" y2="45%" stroke="var(--line)" stroke-width="3" stroke-dasharray="4"/>
+                                    <line id="line-client-switch" x1="85%" y1="45%" x2="50%" y2="45%" stroke="var(--line)" stroke-width="3" stroke-dasharray="4"/>
+                                </svg>
+
+                                <div class="pt-node pt-node-server" id="node-server">
+                                    <div class="pt-node-icon">🖥️</div>
+                                    <div class="pt-node-label">DHCP-Server</div>
+                                    <div class="pt-node-ip">192.168.1.254</div>
+                                    <div class="pt-node-mac">MAC 000B.12C4.9999</div>
+                                </div>
+
+                                <div class="pt-node pt-node-switch" id="node-switch">
+                                    <div class="pt-node-icon" style="border-radius: 50%;">🔀</div>
+                                    <div class="pt-node-label">Switch-2960</div>
+                                    <div class="pt-node-ip">L2 Switch</div>
+                                    <div class="pt-node-mac">MAC 0011.2233.4455</div>
+                                </div>
+
+                                <div class="pt-node pt-node-client" id="node-client">
+                                    <div class="pt-node-icon" id="client-icon">💻</div>
+                                    <div class="pt-node-label" id="client-name">PC-Client-1</div>
+                                    <div class="pt-node-ip" id="client-ip-display">DHCP ממתין</div>
+                                    <div class="pt-node-mac">MAC 000A.41A1.1111</div>
+                                </div>
+
+                                <div class="pt-packet-envelope" id="packet">
+                                    <div class="pt-packet-header" id="packet-header">
+                                        <span id="packet-tag">DORA</span>
+                                        <span id="packet-proto">UDP 67 68</span>
+                                    </div>
+                                    <div class="pt-packet-body">
+                                        <div class="pt-packet-row"><span class="pt-packet-key">Src IP</span><span class="pt-packet-val" id="pkt-src-ip">0.0.0.0</span></div>
+                                        <div class="pt-packet-row"><span class="pt-packet-key">Dst IP</span><span class="pt-packet-val" id="pkt-dst-ip">255.255.255.255</span></div>
+                                        <div class="pt-packet-row"><span class="pt-packet-key">Src MAC</span><span class="pt-packet-val" id="pkt-src-mac">000A.41A1.1111</span></div>
+                                        <div class="pt-packet-row"><span class="pt-packet-key">Dst MAC</span><span class="pt-packet-val" id="pkt-dst-mac">FFFF.FFFF.FFFF</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-sim-controls">
+                                <div style="display:flex; gap:8px;">
+                                    <button class="btn" id="btn-start" onclick="startDORA()" style="min-height: 40px; font-size: 0.8rem;">▶ התחל תהליך DORA</button>
+                                    <button class="btn btn-dark" id="btn-pause" onclick="togglePause()" disabled style="min-height: 40px; font-size: 0.8rem;">⏸️ השהה</button>
+                                </div>
+
+                                <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; font-weight:bold;">
+                                    <span>קצב תנועה:</span>
+                                    <input type="range" id="speed-slider" min="0.5" max="2" step="0.25" value="0.5" onchange="updateSpeed()">
+                                    <span id="speed-val" class="font-mono">0.5x</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-explanation-box">
+                                <div class="pt-exp-title">
+                                    <span id="exp-step-title">מוכן לסימולציה</span>
+                                    <span id="exp-phase" class="aside">מצב המתנה</span>
+                                </div>
+                                <div class="pt-exp-text" id="exp-description">
+                                    לחץ על "התחל תהליך DORA" כדי לראות כיצד מחשב הלקוח מבקש ומקבל כתובת IP אוטומטית משרת ה-DHCP דרך 4 שלבי התקשורת.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-bottom-area">
+                        <div class="pt-dora-steps">
+                            <div style="font-size:0.8rem; font-weight:800; margin-bottom:4px; color:var(--red-text);">שלבי תהליך DORA</div>
+                            <div class="pt-step-item pt-step-discover" id="step-D">
+                                <span class="pt-step-badge">1</span>
+                                <span>Discover גילוי Broadcast</span>
+                            </div>
+                            <div class="pt-step-item pt-step-offer" id="step-O">
+                                <span class="pt-step-badge">2</span>
+                                <span>Offer הצעה Unicast</span>
+                            </div>
+                            <div class="pt-step-item pt-step-request" id="step-R">
+                                <span class="pt-step-badge">3</span>
+                                <span>Request בקשה Broadcast</span>
+                            </div>
+                            <div class="pt-step-item pt-step-ack" id="step-A">
+                                <span class="pt-step-badge">4</span>
+                                <span>Acknowledge אישור Unicast</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-table-panel">
+                            <div class="pt-panel-title">
+                                <span>📋 טבלת כתובות מוקצות DHCP Address Leases</span>
+                            </div>
+                            <div style="overflow-y:auto; flex:1;">
+                                <table class="pt-dhcp-table">
+                                    <thead>
+                                        <tr>
+                                            <th>שם המכשיר</th>
+                                            <th>כתובת IP שהוקצתה</th>
+                                            <th>מסכת רשת</th>
+                                            <th>זמן חכירה Lease</th>
+                                            <th>מצב התקשרות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lease-table-body">
+                                        <tr>
+                                            <td colspan="5" style="color:var(--muted); padding:10px;">אין כרגע כתובות מוקצות בטבלה</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 4: CLI -->
+        <section id="content-s4" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">04. הגדרת שרת <span class="eng-tag">DHCP</span> בנתב סיסקו (CLI)</h2>
+
+                <div class="task-box">
+                    <div class="task-title">משימת הגדרה:</div>
+                    <p style="font-weight: 600;">יש להגדיר מאגר <span class="eng-tag">DHCP</span> בשם <span class="code-text">LAN_POOL</span> עבור הרשת <span class="code-text">192.168.10.0/24</span> עם שער ברירת מחדל <span class="code-text">192.168.10.1</span>.</p>
+                    <div class="task-progress" id="taskProgress" style="font-weight: 800; color: var(--red-text); margin-top: 8px;">הזן פקודה ליצירת ה-Pool:</div>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:bold; color:#334155;">
-                    <span>קצב תנועה:</span>
-                    <input type="range" id="speed-slider" min="0.5" max="2" step="0.25" value="0.5" onchange="updateSpeed()">
-                    <span id="speed-val">0.5x</span>
-                </div>
-            </div>
+                <div class="terminal">
+                    <div class="term-topbar">
+                        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+                        <span style="margin-right:12px; color:#94a3b8; font-size:0.8rem;" class="code-text">Router config</span>
+                    </div>
+                    
+                    <div class="term-explain-box">
+                        <b>הנחיות לביצוע:</b> הקלד את הפקודה ליצירת מאגר ה-<span class="eng-tag">DHCP</span> לפי התבנית: <span class="code-text">ip dhcp pool LAN_POOL</span>
+                    </div>
 
-            <div class="pt-explanation-box">
-                <div class="pt-exp-title">
-                    <span id="exp-step-title">מוכן לסימולציה</span>
-                    <span id="exp-phase" style="font-size:12px; background:#e0f2fe; padding:2px 6px; border-radius:4px; font-weight:800;">מצב המתנה</span>
-                </div>
-                <div class="pt-exp-text" id="exp-description">
-                    לחץ על "התחל תהליך DORA" כדי לראות כיצד מחשב הלקוח מבקש ומקבל כתובת IP אוטומטית משרת ה-DHCP דרך 4 שלבי התקשורת.
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="pt-bottom-area">
-        <div class="pt-dora-steps">
-            <div style="font-size:13px; font-weight:bold; margin-bottom:2px; color:#1e293b;">שלבי תהליך DORA</div>
-            <div class="pt-step-item pt-step-discover" id="step-D">
-                <span class="pt-step-badge">1</span>
-                <span>Discover גילוי Broadcast</span>
-            </div>
-            <div class="pt-step-item pt-step-offer" id="step-O">
-                <span class="pt-step-badge">2</span>
-                <span>Offer הצעה Unicast</span>
-            </div>
-            <div class="pt-step-item pt-step-request" id="step-R">
-                <span class="pt-step-badge">3</span>
-                <span>Request בקשה Broadcast</span>
-            </div>
-            <div class="pt-step-item pt-step-ack" id="step-A">
-                <span class="pt-step-badge">4</span>
-                <span>Acknowledge אישור Unicast</span>
-            </div>
-        </div>
-
-        <div class="pt-table-panel">
-            <div class="pt-panel-title" style="margin-bottom:2px;">
-                <span>📋 טבלת כתובות מוקצות DHCP Address Leases</span>
-            </div>
-            <div style="overflow-y:auto; flex:1;">
-                <table class="pt-dhcp-table">
-                    <thead>
-                        <tr>
-                            <th>שם המכשיר</th>
-                            <th>כתובת IP שהוקצתה</th>
-                            <th>מסכת רשת</th>
-                            <th>זמן חכירה Lease</th>
-                            <th>מצב התקשרות</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lease-table-body">
-                        <tr>
-                            <td colspan="5" style="color:#94a3b8; padding:10px; font-weight: 600;">אין כרגע כתובות מוקצות בטבלה</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-</section>
-
-<!-- חלק 4: CLI -->
-<section id="s4">
-<div class="mb-4">
-  <h2 class="section-title">04. הגדרת שרת <span class="term-badge">DHCP</span> בנתב סיסקו (CLI)</h2>
-</div>
-
-<div class="task-box shadow-xs">
-  <div class="task-title">משימת הגדרה:</div>
-  <p class="font-semibold text-slate-700">יש להגדיר מאגר <span class="term-badge">DHCP</span> בשם <span class="code-text">LAN_POOL</span> עבור הרשת <span class="code-text">192.168.10.0/24</span> עם שער ברירת מחדל <span class="code-text">192.168.10.1</span>.</p>
-  <div class="task-progress" id="taskProgress" style="font-weight: 800; color: var(--purple-active);">הזן פקודה ליצירת ה-Pool:</div>
-</div>
-
-<div class="terminal shadow-lg">
-  <div class="term-topbar">
-    <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
-    <span style="margin-right:12px; color:#94A3B8; font-size:13px;" class="code-text">Router config</span>
-  </div>
-  
-  <div class="term-explain-box font-semibold">
-    <b>הנחיות לביצוע:</b> הקלד את הפקודה ליצירת מאגר ה-<span class="term-badge">DHCP</span> לפי התבנית: <span class="code-text">ip dhcp pool LAN_POOL</span>
-  </div>
-
-  <div class="term-output" id="termOutput">Router enable
+                    <div class="term-output" id="termOutput">Router enable
 Router configure terminal
 Router config <span class="hint">Type the command to create DHCP pool and press Enter</span></div>
-  
-  <div class="term-input-row">
-    <span class="prompt" id="termPrompt">Router(config)#</span>
-    <input type="text" class="term-input" id="termInput" placeholder="ip dhcp pool LAN_POOL" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')submitDhcpCmd()">
-  </div>
-</div>
-</section>
+                    
+                    <div class="term-input-row">
+                        <span class="prompt" id="termPrompt">Router(config)#</span>
+                        <input type="text" class="term-input" id="termInput" placeholder="ip dhcp pool LAN_POOL" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')submitDhcpCmd()">
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- חלק 5: טאבים למבדק ורפלקציה (לחצנים אדומים, פעיל סגול) -->
-<section id="s5">
-<div class="mb-4">
-  <h2 class="section-title">05. ניתוח תקלות מתקדם, מבדקי ידע ורפלקציה</h2>
-</div>
+        <!-- Tab 5: מבדק, תקלות ורפלקציה -->
+        <section id="content-s5" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">05. ניתוח תקלות מתקדם, מבדקי ידע ורפלקציה</h2>
 
-<div class="tab-btn-group">
-  <button class="tab-btn active" onclick="switchTab('no-dhcp-tab', this)">01. מי לא יקבל כתובת? <span class="term-badge" style="background:#ffffff; color:#7e22ce; border-color:#d8b4fe;">L3 Boundary</span></button>
-  <button class="tab-btn" onclick="switchTab('quiz-tab', this)">02. 📝 מבדק 10 שאלות אמריקאי</button>
-  <button class="tab-btn" onclick="switchTab('reflection-tab', this)">03. 💡 שאלות רפלקציה מעצימות</button>
-</div>
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab('no-dhcp-tab')" id="subtab-no-dhcp-tab"><span class="num">1</span><span class="lbl">מי לא יקבל כתובת? <span class="aside">L3 Boundary</span></span></button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('quiz-tab')" id="subtab-quiz-tab"><span class="num">2</span><span class="lbl">📝 מבדק 10 שאלות</span></button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('reflection-tab')" id="subtab-reflection-tab"><span class="num">3</span><span class="lbl">💡 שאלות רפלקציה</span></button>
+                </div>
 
-<!-- Tab 0: מי לא יקבל כתובת DHCP? -->
-<div id="no-dhcp-tab" class="tab-content active">
-  <div class="glass-card mb-6" style="border: 2px solid var(--ospf-gold);">
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-      <span style="font-size:36px;">🛑</span>
-      <div>
-        <h3 style="color:#92400E; margin:0; font-size:22px; font-weight:800;">שאלה קריטית בהנדסת רשתות: מי לא יקבל כתובת <span class="term-badge">IP</span> משרת ה-<span class="term-badge">DHCP</span>?</h3>
-        <p style="margin:0; font-size:15px; color:#B45309; font-weight:700;">ניתוח עומק גבולות השידור (<span class="term-badge">Broadcast Domains</span>), חסימת <span class="term-badge">L3</span> ופתרון <span class="term-badge">DHCP Relay Agent</span>.</p>
-      </div>
-    </div>
+                <!-- Sub Tab 1: מי לא יקבל כתובת? -->
+                <div id="subcontent-no-dhcp-tab" class="sub-tab-content active">
+                    <div class="card" style="border-color: var(--c-amber);">
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                            <span style="font-size:2rem;">🛑</span>
+                            <div>
+                                <h3 style="color:var(--c-amber); margin:0; font-size:1.2rem;">שאלה קריטית בהנדסת רשתות: מי לא יקבל כתובת <span class="eng-tag">IP</span> משרת ה-<span class="eng-tag">DHCP</span>?</h3>
+                                <p style="margin:0; font-size:0.85rem; color:var(--muted); font-weight:700;">ניתוח עומק גבולות השידור (<span class="eng-tag">Broadcast Domains</span>), חסימת <span class="eng-tag">L3</span> ופתרון <span class="eng-tag">DHCP Relay Agent</span>.</p>
+                            </div>
+                        </div>
 
-    <div style="line-height:1.7; font-size:16px; color:#334155; font-weight:600;">
-      <p>כדי שמחשב יקבל כתובת <span class="term-badge">IP</span> אוטומטית משרת <span class="term-badge">DHCP</span>, עליו להשלים את שלב ה-<b>DHCP DISCOVER</b>. מכיוון שלמחשב הלקוח אין עדיין כתובת <span class="term-badge">IP</span>, הודעה זו נשלחת כ-<b>Broadcast (שידור היקפי) לכתובת <span class="term-badge">255.255.255.255</span> ולכתובת MAC יעד <span class="term-badge">FFFF.FFFF.FFFF</span></b>.</p>
-    </div>
+                        <div style="line-height:1.7; font-size:0.95rem;">
+                            <p>כדי שמחשב יקבל כתובת <span class="eng-tag">IP</span> אוטומטית משרת <span class="eng-tag">DHCP</span>, עליו להשלים את שלב ה-<b>DHCP DISCOVER</b>. מכיוון שלמחשב הלקוח אין עדיין כתובת <span class="eng-tag">IP</span>, הודעה זו נשלחת כ-<b>Broadcast (שידור היקפי) לכתובת <span class="eng-tag">255.255.255.255</span> ולכתובת MAC יעד <span class="eng-tag">FFFF.FFFF.FFFF</span></b>.</p>
+                        </div>
 
-    <div class="grid2" style="margin-top:16px;">
-      <div style="background:#FFFFFF; border:1px solid #FCD34D; border-radius:12px; padding:18px;">
-        <h4 style="color:#D97706; margin-top:0; font-size:18px; display:flex; align-items:center; gap:6px; font-weight:800;">
-          <span>❌</span> אלו המכשירים שלא יקבלו כתובת:
-        </h4>
-        <ul style="padding-right:20px; margin:0; font-size:15px; color:#475569; font-weight:600;">
-          <li style="margin-bottom:10px;"><b>מחשבים ברשת פיזית / סאבנט אחרת:</b> נתב (<span class="term-badge">Router</span>) חוסם הודעות <span class="term-badge">Broadcast</span> כברירת מחדל ולא מעביר אותן בין ממשקיו.</li>
-          <li style="margin-bottom:10px;"><b>מחשבים ב-<span class="term-badge">VLAN</span> אחר:</b> מתג (<span class="term-badge">Switch</span>) מבודד לחלוטין מתחמי שידור (<span class="term-badge">Broadcast Domains</span>) בין <span class="term-badge">VLANs</span> שונים גם אם הם על אותו מתג פיזי.</li>
-          <li style="margin-bottom:10px;"><b>מחשבים שסובלים מנתק פיזי / הפסקת שירות:</b> כבל מנותק, כרטיס רשת מנוטרל או שרת <span class="term-badge">DHCP</span> כבוי / מלא (<span class="term-badge">Exhausted Pool</span>).</li>
-        </ul>
-      </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:16px;">
+                            <div style="background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:16px;">
+                                <h4 style="color:var(--red-text); margin-top:0; font-size:1rem; margin-bottom:10px;">
+                                    ❌ אלו המכשירים שלא יקבלו כתובת:
+                                </h4>
+                                <ul style="padding-right:20px; margin:0; font-size:0.85rem; line-height:1.8;">
+                                    <li><b>מחשבים ברשת פיזית / סאבנט אחרת:</b> נתב (<span class="eng-tag">Router</span>) חוסם הודעות <span class="eng-tag">Broadcast</span> כברירת מחדל ולא מעביר אותן בין ממשקיו.</li>
+                                    <li><b>מחשבים ב-<span class="eng-tag">VLAN</span> אחר:</b> מתג (<span class="eng-tag">Switch</span>) מבודד לחלוטין מתחמי שידור (<span class="eng-tag">Broadcast Domains</span>) בין <span class="eng-tag">VLANs</span> שונים גם אם הם על אותו מתג פיזי.</li>
+                                    <li><b>מחשבים שסובלים מנתק פיזי / הפסקת שירות:</b> כבל מנותק, כרטיס רשת מנוטרל או שרת <span class="eng-tag">DHCP</span> כבוי / מלא (<span class="eng-tag">Exhausted Pool</span>).</li>
+                                </ul>
+                            </div>
 
-      <div style="background:#FFFFFF; border:1px solid #6EE7B7; border-radius:12px; padding:18px;">
-        <h4 style="color:#059669; margin-top:0; font-size:18px; display:flex; align-items:center; gap:6px; font-weight:800;">
-          <span>💡</span> הפתרון: רכיב ראוטר משכבה 3 (<span class="term-badge">Layer 3</span>)
-        </h4>
-        <p style="font-size:15px; color:#475569; margin-bottom:10px; font-weight:600;">
-          כדי לאפשר למחשבים ברשת / <span class="term-badge">VLAN</span> מרוחק לקבל כתובת משרת מרכזי, יש להגדיר ברכיב השכבה השלישית (<span class="term-badge">Router</span> או <span class="term-badge">L3 Switch</span>) מנגנון תיווך:
-        </p>
-        <div style="background:#ECFDF5; border:1px dashed #10B981; padding:10px 14px; border-radius:8px; font-size:14px; font-family:'JetBrains Mono', monospace; color:#065F46; font-weight:800;" dir="ltr">
-          Router(config-if)# ip helper-address [DHCP_SERVER_IP]
+                            <div style="background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:16px;">
+                                <h4 style="color:var(--c-green); margin-top:0; font-size:1rem; margin-bottom:10px;">
+                                    💡 הפתרון: רכיב ראוטר משכבה 3 (<span class="eng-tag">Layer 3</span>)
+                                </h4>
+                                <p style="font-size:0.85rem; margin-bottom:10px;">
+                                    כדי לאפשר למחשבים ברשת / <span class="eng-tag">VLAN</span> מרוחק לקבל כתובת משרת מרכזי, יש להגדיר ברכיב השכבה השלישית (<span class="eng-tag">Router</span> או <span class="eng-tag">L3 Switch</span>) מנגנון תיווך:
+                                </p>
+                                <div class="code-font" style="display:block; padding:8px 12px; margin-bottom:10px;">
+                                    Router(config-if)# ip helper-address [DHCP_SERVER_IP]
+                                </div>
+                                <p style="font-size:0.85rem; color:var(--c-green); font-weight:700;">
+                                    פקודה זו מקבלת את ה-<span class="eng-tag">Broadcast</span> <span class="eng-tag">Discover</span> והופכת אותו ל-<span class="eng-tag">Unicast</span> שנשלח ישירות אל שרת ה-<span class="eng-tag">DHCP</span> המרכזי.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="font-size:1.1rem; margin-bottom:14px;">
+                            🧪 מבדק תרחישים: האם המחשב יקבל כתובת <span class="eng-tag">IP</span>?
+                        </h3>
+                        <p style="font-size:0.9rem; margin-bottom:16px;">קרא את התרחישים הבאים, קבע האם המחשב יקבל כתובת <span class="eng-tag">IP</span> משרת ה-<span class="eng-tag">DHCP</span> ובדוק את תשובתך:</p>
+                        <div id="scenarioContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Sub Tab 2: Quiz -->
+                <div id="subcontent-quiz-tab" class="sub-tab-content">
+                    <div class="quiz-score-box">
+                        <div style="font-size:1.1rem; font-weight:800;">הציון שלך במבדק ה-<span class="eng-tag">DHCP</span> & <span class="eng-tag">DORA</span></div>
+                        <div class="score-num" id="quizScoreDisplay">0 / 100</div>
+                        <p style="font-size:0.85rem; margin-top:6px;">ענה על כל 10 השאלות ולחץ על "בדוק מבדק" לקבלת ציון ומשוב מלא.</p>
+                    </div>
+                    <div id="quizContainer"></div>
+                    <button class="btn" style="width:100%; min-height:52px; font-size:1rem; margin-top:12px;" onclick="calculateQuizScore()">📊 בדוק מבדק לקבלת ציון ומשוב מלא</button>
+                </div>
+
+                <!-- Sub Tab 3: Reflection -->
+                <div id="subcontent-reflection-tab" class="sub-tab-content">
+                    <p style="font-size:0.95rem; margin-bottom:16px;">שאלות הרפלקציה נועדו לחבר בין החומר התיאורטי והמעשי לבין חשיבה ארכיטקטונית והתפתחות מקצועית כתלמיד מגמת תקשוב.</p>
+                    <div id="reflectionContainer"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <div class="completion" id="completionBox">
+            <h2 style="font-size:1.5rem; color:var(--ok-edge); margin-bottom:8px;">🏆 כל הכבוד! השלמת את כל יחידת ה-<span class="eng-tag">DHCP</span> & <span class="eng-tag">DORA</span> בהצלחה!</h2>
+            <p style="font-size:1rem; color:var(--ok-edge); font-weight:700;">הפגנת שליטה מיומנת בפרוטוקול <span class="eng-tag">DHCP</span>, זיהוי כתובות <span class="eng-tag">APIPA</span>, ניתוח תהליך <span class="eng-tag">DORA</span> והגדרות <span class="eng-tag">CLI</span> בסיסקו.</p>
         </div>
-        <p style="font-size:14px; color:#047857; margin-top:10px; font-weight:700;">
-          פקודה זו מקבלת את ה-<span class="term-badge">Broadcast</span> <span class="term-badge">Discover</span> והופכת אותו ל-<span class="term-badge">Unicast</span> שנשלח ישירות אל שרת ה-<span class="term-badge">DHCP</span> המרכזי.
-        </p>
-      </div>
-    </div>
-  </div>
 
-  <div class="glass-card">
-    <h3 style="color:#0f172a; font-size:18px; margin-bottom:14px; display:flex; align-items:center; gap:8px; font-weight:800;">
-      <span>🧪</span> מבדק תרחישים: האם המחשב יקבל כתובת <span class="term-badge">IP</span>?
-    </h3>
-    <p style="font-size:15px; font-weight:600;">קרא את התרחישים הבאים, קבע האם המחשב יקבל כתובת <span class="term-badge">IP</span> משרת ה-<span class="term-badge">DHCP</span> ובדוק את תשובתך:</p>
-    <div id="scenarioContainer"></div>
-  </div>
-</div>
+    </main>
 
-<!-- Tab 1: Quiz -->
-<div id="quiz-tab" class="tab-content">
-  <div class="quiz-score-box shadow-sm">
-    <div style="font-size:18px; font-weight:800; color:#0f172a;">הציון שלך במבדק ה-<span class="term-badge">DHCP</span> & <span class="term-badge">DORA</span></div>
-    <div class="score-num" id="quizScoreDisplay">0 / 100</div>
-    <p style="font-size:15px; margin-top:6px; font-weight:600;">ענה על כל 10 השאלות ולחץ על "בדוק מבדק" לקבלת ציון ומשוב מלא.</p>
-  </div>
-  <div id="quizContainer"></div>
-  <button class="btn" style="width:100%; padding:16px; font-size:18px; margin-top:12px;" onclick="calculateQuizScore()">📊 בדוק מבדק לקבלת ציון ומשוב מלא</button>
-</div>
+    <!-- Floating Crazy Bot for Teacher -->
+    <div class="floating-bot-container">
+        <div id="bot-card" class="floating-bot-card" style="display: none;">
+            <div class="bot-header">
+                <img src="https://lh3.googleusercontent.com/d/1fzqv93VKIW_VT8-e1HdJxBmbU2sFnwlb" alt="אווטר בוט עזרה" class="bot-avatar-spinning">
+                <div>
+                    <h4>הבוט המטורלל למורה 🤪</h4>
+                    <span class="sub">עוזר פדגוגי אישי בזמן אמת</span>
+                </div>
+            </div>
+            
+            <p id="bot-tip">
+                המורה, אל תשכח להזכיר לתלמידים ש-<span class="eng-tag">APIPA</span> היא כמו גלגל הצלה – היא שומרת אותך צף ברשת המקומית, אבל לא תיקח אותך לים הפתוח של האינטרנט!
+            </p>
 
-<!-- Tab 2: Reflection -->
-<div id="reflection-tab" class="tab-content">
-  <p style="font-size:16px; font-weight:600;" class="mb-4">שאלות הרפלקציה נועדו לחבר בין החומר התיאורטי והמעשי לבין חשיבה ארכיטקטונית והתפתחות מקצועית כתלמיד מגמת תקשוב.</p>
-  <div id="reflectionContainer"></div>
-</div>
+            <a href="https://gemini.google.com/gem/167016ac4a4b/66c3b83daa7940ef?usp=sharing" target="_blank" class="gemini-bot-btn">
+                <span>💬 פתח בצ'אט <span class="eng-tag">Gemini Gem</span> למורה</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
 
-</section>
-
-<div class="completion" id="completionBox">
-  <h2 class="text-2xl font-black text-emerald-800 mb-2">🏆 כל הכבוד! השלמת את כל יחידת ה-<span class="term-badge">DHCP</span> & <span class="term-badge">DORA</span> בהצלחה!</h2>
-  <p style="font-size:17px; font-weight:700;" class="text-emerald-700">הפגנת שליטה מיומנת בפרוטוקול <span class="term-badge">DHCP</span>, זיהוי כתובות <span class="term-badge">APIPA</span>, ניתוח תהליך <span class="term-badge">DORA</span> והגדרות <span class="term-badge">CLI</span> בסיסקו.</p>
-</div>
-
-<div class="footer-note">מסלול המידע – לומדים DHCP ותהליך DORA עם סהר | מערכת תרגול בהנדסת רשתות 2026</div>
-</div>
-
-<!-- כפתור עזרה צף -->
-<div class="fixed bottom-6 left-6 z-50 no-print">
-    <button id="openHelpModalBtn" class="flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 border border-white/20">
-        <div class="w-9 h-9 rounded-full border border-white/40 overflow-hidden bg-slate-950 flex-shrink-0">
-            <img src="https://lh3.googleusercontent.com/d/1fzqv93VKIW_VT8-e1HdJxBmbU2sFnwlb" alt="אווטר בוט עזרה" class="w-full h-full object-cover">
+            <button onclick="nextBotTip()" class="btn btn-dark" style="width:100%;">💡 תן לי עוד טיפ מטורלל!</button>
         </div>
-        <span class="text-base font-extrabold">בוט עזרה של סהר</span>
-    </button>
-</div>
 
-<!-- חלונית עזרה צפה -->
-<div id="helpModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 max-w-sm w-full text-center relative shadow-2xl" id="helpModalContent">
-        <button id="closeHelpModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-            <i data-lucide="x" class="w-5 h-5"></i>
+        <button onclick="toggleBotCard()" class="bot-toggle-btn">
+            <span>🤪 עוזר פדגוגי למורה</span>
         </button>
-        <div class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-purple-500 p-1 bg-stone-100 shadow-md overflow-hidden">
-            <img src="https://lh3.googleusercontent.com/d/1fzqv93VKIW_VT8-e1HdJxBmbU2sFnwlb" alt="תמונת בוט עזרה" class="w-full h-full object-cover rounded-full">
-        </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-2">צריכים עזרה ב-DHCP?</h3>
-        <p class="text-base text-slate-600 mb-6 leading-relaxed font-semibold">הבוט של סהר זמין לעזור לכם להבין את תהליך DORA, כתובות APIPA ופקודות סיסקו!</p>
-        <a href="https://gemini.google.com/gem/167016ac4a4b/66c3b83daa7940ef?usp=sharing" target="_blank" class="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-3 px-4 rounded-xl transition-all shadow-md text-base">
-            <span>פתיחת צ'אט עזרה</span>
-            <i data-lucide="external-link" class="w-4 h-4"></i>
-        </a>
     </div>
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>מסלול המידע – לומדים DHCP ותהליך DORA עם סהר | מערכת תרגול בהנדסת רשתות © 2026</p>
+        </div>
+    </footer>
 
-    const modal = document.getElementById('helpModal');
-    const openBtn = document.getElementById('openHelpModalBtn');
-    const closeBtn = document.getElementById('closeHelpModalBtn');
+    <!-- JavaScript Logic -->
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
 
-    if(openBtn && modal && closeBtn) {
-        openBtn.addEventListener('click', () => { modal.classList.remove('hidden'); });
-        closeBtn.addEventListener('click', () => { modal.classList.add('hidden'); });
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
-    }
-});
+        // Dark mode
+        function applyDark(on) {
+            document.body.classList.toggle('dark', on);
+            document.getElementById('darkToggleBtn').textContent = on ? '☀️ מצב יום' : '🌙 מצב לילה';
+        }
+        function toggleDark() {
+            const on = !document.body.classList.contains('dark');
+            applyDark(on);
+            try { localStorage.setItem('dhcp_lesson_dark', on ? '1' : '0'); } catch (e) {}
+        }
 
-function toggleAcc(id){
-  document.getElementById(id).classList.toggle("open");
-}
+        // Tab Switcher Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-function switchTab(tabId, btn) {
-  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  btn.classList.add('active');
-}
+            document.getElementById('content-' + tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
 
-let isRunning = false;
-let isPaused = false;
-let speedFactor = 0.5;
-let currentIPIndex = 0;
+        // Sub-Tab Switcher Logic
+        function switchSubTab(subTabId) {
+            document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sub-tab-btn').forEach(el => el.classList.remove('active'));
 
-const serverPos = { x: 110, y: 55 };
-const switchPos = { x: 500, y: 55 };
-const clientPos = { x: 830, y: 55 };
+            document.getElementById('subcontent-' + subTabId).classList.add('active');
+            document.getElementById('subtab-' + subTabId).classList.add('active');
+        }
 
-const packet = document.getElementById('packet');
-const packetHeader = document.getElementById('packet-header');
-const packetTag = document.getElementById('packet-tag');
-const pktSrcIp = document.getElementById('pkt-src-ip');
-const pktDstIp = document.getElementById('pkt-dst-ip');
-const pktSrcMac = document.getElementById('pkt-src-mac');
-const pktDstMac = document.getElementById('pkt-dst-mac');
+        function toggleAcc(id){
+            document.getElementById(id).classList.toggle("open");
+        }
 
-const expTitle = document.getElementById('exp-step-title');
-const expPhase = document.getElementById('exp-phase');
-const expDesc = document.getElementById('exp-description');
-const btnStart = document.getElementById('btn-start');
-const btnPause = document.getElementById('btn-pause');
+        // Crazy Bot Tips logic
+        const crazyTips = [
+            "אם תלמיד שואל למה שלב Request הוא Broadcast, תזכיר לו שזה כדי להגיד לשאר השרתים 'תודה, אבל בחרתי במישהו אחר'!",
+            "טיפ זהב: כתובת <span class='eng-tag'>169.254.X.X</span> אומרת מיד – כבל מנותק, DHCP כבוי או בעיית L2!",
+            "זכור: T1 הוא ב-50% מזמן החכירה, ופונה ב-Unicast. T2 הוא ב-87.5% מזמן החכירה ויוצא ב-Broadcast נרחב!",
+            "בסיסקו: הפקודה <span class='code-text'>ip helper-address</span> ממירה Broadcast ל-Unicast ומאפשרת מעבר בין רשתות מעבר לראוטר."
+        ];
+        let currentTipIndex = 0;
 
-function getAssignedIP() {
-    const startIpParts = document.getElementById('start-ip').value.split('.');
-    if(startIpParts.length === 4) {
-        let lastOctet = parseInt(startIpParts[3]) + currentIPIndex;
-        return `${startIpParts[0]}.${startIpParts[1]}.${startIpParts[2]}.${lastOctet}`;
-    }
-    return "192.168.1.10";
-}
+        function toggleBotCard() {
+            const card = document.getElementById('bot-card');
+            card.style.display = card.style.display === 'none' ? 'flex' : 'none';
+        }
 
-const doraData = [
-    {
-        step: "D",
-        tag: "DHCP DISCOVER",
-        color: "var(--discover-color)",
-        from: clientPos,
-        to: serverPos,
-        srcIp: "0.0.0.0",
-        dstIp: "255.255.255.255",
-        srcMac: "000A.41A1.1111",
-        dstMac: "FFFF.FFFF.FFFF",
-        phase: "שלב 1 מתוך 4",
-        title: "🔍 שלב Discover – הלקוח מחפש שרת DHCP",
-        desc: "המחשב שולח הודעת שידור היקפית (Broadcast) ל-255.255.255.255 לכל הרשת ושואל: 'האם יש כאן שרת DHCP? זה עתה התחברתי!'"
-    },
-    {
-        step: "O",
-        tag: "DHCP OFFER",
-        color: "var(--offer-color)",
-        from: serverPos,
-        to: clientPos,
-        srcIp: "192.168.1.254",
-        dstIp: "192.168.1.10",
-        srcMac: "000B.12C4.9999",
-        dstMac: "000A.41A1.1111",
-        phase: "שלב 2 מתוך 4",
-        title: "📩 שלב Offer – השרת מציע כתובת IP",
-        desc: "שרת ה-DHCP משיב בהצעה (Unicast) הכוללת כתובת IP פנויה, מסיכת רשת, שער ברירת מחדל וכתובת שרת DNS."
-    },
-    {
-        step: "R",
-        tag: "DHCP REQUEST",
-        color: "var(--request-color)",
-        from: clientPos,
-        to: serverPos,
-        srcIp: "0.0.0.0",
-        dstIp: "255.255.255.255",
-        srcMac: "000A.41A1.1111",
-        dstMac: "FFFF.FFFF.FFFF",
-        phase: "שלב 3 מתוך 4",
-        title: "📝 שלב Request – הלקוח מבקש לאשר את ההצעה",
-        desc: "המחשב שולח בקשה ב-Broadcast מוחלט (גם IP וגם MAC) כדי להודיע לכל השרתים במקטע באיזו הצעה הוא בחר ולשחרר הצעות שנדחו."
-    },
-    {
-        step: "A",
-        tag: "DHCP ACK",
-        color: "var(--ack-color)",
-        from: serverPos,
-        to: clientPos,
-        srcIp: "192.168.1.254",
-        dstIp: "192.168.1.10",
-        srcMac: "000B.12C4.9999",
-        dstMac: "000A.41A1.1111",
-        phase: "שלב 4 מתוך 4",
-        title: "✅ שלב Acknowledge – השרת מאשר סופית",
-        desc: "השרת שולח אישור סופי (ACK), רושם את הלקוח בטבלת החכירות, והמחשב מוגדר ומחובר לרשת באופן מלא."
-    }
-];
+        function nextBotTip() {
+            currentTipIndex = (currentTipIndex + 1) % crazyTips.length;
+            document.getElementById('bot-tip').innerHTML = crazyTips[currentTipIndex];
+        }
 
-function updateSpeed() {
-    const val = document.getElementById('speed-slider').value;
-    speedFactor = parseFloat(val);
-    document.getElementById('speed-val').innerText = val + 'x';
-}
+        // Simulator Engine Logic
+        let isRunning = false;
+        let isPaused = false;
+        let speedFactor = 0.5;
+        let currentIPIndex = 0;
 
-function saveSettings() {
-    alert("הגדרות השרת נשמרו בהצלחה!");
-}
+        const serverPos = { x: 80, y: 150 };
+        const switchPos = { x: 300, y: 150 };
+        const clientPos = { x: 500, y: 150 };
 
-function resetStepsUI() {
-    ['D', 'O', 'R', 'A'].forEach(s => {
-        document.getElementById(`step-${s}`).classList.remove('active');
-    });
-}
+        const packet = document.getElementById('packet');
+        const packetHeader = document.getElementById('packet-header');
+        const packetTag = document.getElementById('packet-tag');
+        const pktSrcIp = document.getElementById('pkt-src-ip');
+        const pktDstIp = document.getElementById('pkt-dst-ip');
+        const pktSrcMac = document.getElementById('pkt-src-mac');
+        const pktDstMac = document.getElementById('pkt-dst-mac');
 
-function togglePause() {
-    isPaused = !isPaused;
-    btnPause.innerText = isPaused ? "▶️ המשך" : "⏸ השהה";
-}
+        const expTitle = document.getElementById('exp-step-title');
+        const expPhase = document.getElementById('exp-phase');
+        const expDesc = document.getElementById('exp-description');
+        const btnStart = document.getElementById('btn-start');
+        const btnPause = document.getElementById('btn-pause');
 
-async function animatePacket(data) {
-    return new Promise((resolve) => {
-        packet.style.display = 'flex';
-        packet.style.borderColor = data.color;
-        packetHeader.style.backgroundColor = data.color;
-        packetTag.innerText = data.tag;
-        
-        pktSrcIp.innerText = data.srcIp;
-        pktDstIp.innerText = data.dstIp;
-        pktSrcMac.innerText = data.srcMac;
-        pktDstMac.innerText = data.dstMac;
-
-        let startX = data.from.x;
-        let startY = data.from.y;
-        let endX = data.to.x;
-        let endY = data.to.y;
-
-        let startTime = null;
-        const baseDuration = 3500;
-        const duration = baseDuration / speedFactor;
-
-        function step(timestamp) {
-            if (!startTime) startTime = timestamp;
-            if (isPaused) {
-                startTime += (timestamp - (window.lastTimestamp || timestamp));
+        function getAssignedIP() {
+            const startIpParts = document.getElementById('start-ip').value.split('.');
+            if(startIpParts.length === 4) {
+                let lastOctet = parseInt(startIpParts[3]) + currentIPIndex;
+                return `${startIpParts[0]}.${startIpParts[1]}.${startIpParts[2]}.${lastOctet}`;
             }
-            window.lastTimestamp = timestamp;
+            return "192.168.1.10";
+        }
 
-            const elapsed = timestamp - startTime;
-            const progress = Math.min(elapsed / duration, 1);
+        const doraData = [
+            {
+                step: "D",
+                tag: "DHCP DISCOVER",
+                color: "var(--discover-color)",
+                from: clientPos,
+                to: serverPos,
+                srcIp: "0.0.0.0",
+                dstIp: "255.255.255.255",
+                srcMac: "000A.41A1.1111",
+                dstMac: "FFFF.FFFF.FFFF",
+                phase: "שלב 1 מתוך 4",
+                title: "🔍 שלב Discover – הלקוח מחפש שרת DHCP",
+                desc: "המחשב שולח הודעת שידור היקפית (Broadcast) ל-255.255.255.255 לכל הרשת ושואל: 'האם יש כאן שרת DHCP? זה עתה התחברתי!'"
+            },
+            {
+                step: "O",
+                tag: "DHCP OFFER",
+                color: "var(--offer-color)",
+                from: serverPos,
+                to: clientPos,
+                srcIp: "192.168.1.254",
+                dstIp: "192.168.1.10",
+                srcMac: "000B.12C4.9999",
+                dstMac: "000A.41A1.1111",
+                phase: "שלב 2 מתוך 4",
+                title: "📩 שלב Offer – השרת מציע כתובת IP",
+                desc: "שרת ה-DHCP משיב בהצעה (Unicast) הכוללת כתובת IP פנויה, מסיכת רשת, שער ברירת מחדל וכתובת שרת DNS."
+            },
+            {
+                step: "R",
+                tag: "DHCP REQUEST",
+                color: "var(--request-color)",
+                from: clientPos,
+                to: serverPos,
+                srcIp: "0.0.0.0",
+                dstIp: "255.255.255.255",
+                srcMac: "000A.41A1.1111",
+                dstMac: "FFFF.FFFF.FFFF",
+                phase: "שלב 3 מתוך 4",
+                title: "📝 שלב Request – הלקוח מבקש לאשר את ההצעה",
+                desc: "המחשב שולח בקשה ב-Broadcast מוחלט (גם IP וגם MAC) כדי להודיע לכל השרתים במקטע באיזו הצעה הוא בחר ולשחרר הצעות שנדחו."
+            },
+            {
+                step: "A",
+                tag: "DHCP ACK",
+                color: "var(--ack-color)",
+                from: serverPos,
+                to: clientPos,
+                srcIp: "192.168.1.254",
+                dstIp: "192.168.1.10",
+                srcMac: "000B.12C4.9999",
+                dstMac: "000A.41A1.1111",
+                phase: "שלב 4 מתוך 4",
+                title: "✅ שלב Acknowledge – השרת מאשר סופית",
+                desc: "השרת שולח אישור סופי (ACK), רושם את הלקוח בטבלת החכירות, והמחשב מוגדר ומחובר לרשת באופן מלא."
+            }
+        ];
 
-            const currentX = startX + (endX - startX) * progress;
-            const currentY = startY + (endY - startY) * progress;
+        function updateSpeed() {
+            const val = document.getElementById('speed-slider').value;
+            speedFactor = parseFloat(val);
+            document.getElementById('speed-val').innerText = val + 'x';
+        }
 
-            packet.style.left = `${currentX}px`;
-            packet.style.top = `${currentY}px`;
+        function saveSettings() {
+            alert("הגדרות השרת נשמרו בהצלחה!");
+        }
 
-            if (progress < 1) {
+        function resetStepsUI() {
+            ['D', 'O', 'R', 'A'].forEach(s => {
+                document.getElementById(`step-${s}`).classList.remove('active');
+            });
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            btnPause.innerText = isPaused ? "▶️ המשך" : "⏸ השהה";
+        }
+
+        async function animatePacket(data) {
+            return new Promise((resolve) => {
+                packet.style.display = 'flex';
+                packet.style.borderColor = data.color;
+                packetHeader.style.backgroundColor = data.color;
+                packetTag.innerText = data.tag;
+                
+                pktSrcIp.innerText = data.srcIp;
+                pktDstIp.innerText = data.dstIp;
+                pktSrcMac.innerText = data.srcMac;
+                pktDstMac.innerText = data.dstMac;
+
+                const canvas = document.getElementById('canvas');
+                const rect = canvas.getBoundingClientRect();
+
+                let startX = (data.from.x / 600) * rect.width;
+                let startY = (data.from.y / 300) * rect.height;
+                let endX = (data.to.x / 600) * rect.width;
+                let endY = (data.to.y / 300) * rect.height;
+
+                let startTime = null;
+                const baseDuration = 3500;
+                const duration = baseDuration / speedFactor;
+
+                function step(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    if (isPaused) {
+                        startTime += (timestamp - (window.lastTimestamp || timestamp));
+                    }
+                    window.lastTimestamp = timestamp;
+
+                    const elapsed = timestamp - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    const currentX = startX + (endX - startX) * progress;
+                    const currentY = startY + (endY - startY) * progress;
+
+                    packet.style.left = `${currentX}px`;
+                    packet.style.top = `${currentY}px`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        resolve();
+                    }
+                }
                 requestAnimationFrame(step);
+            });
+        }
+
+        async function startDORA() {
+            if (isRunning) return;
+            isRunning = true;
+            isPaused = false;
+            btnStart.disabled = true;
+            btnPause.disabled = false;
+            btnPause.innerText = "⏸️ השהה";
+
+            document.getElementById('client-ip-display').innerText = "DHCP מבקש כתובת";
+            document.getElementById('client-ip-display').style.color = "var(--c-sky)";
+
+            const assignedIP = getAssignedIP();
+            
+            doraData[1].dstIp = assignedIP;
+            doraData[3].dstIp = assignedIP;
+
+            for (let i = 0; i < doraData.length; i++) {
+                const data = doraData[i];
+                resetStepsUI();
+                document.getElementById(`step-${data.step}`).classList.add('active');
+
+                expTitle.innerText = data.title;
+                expTitle.style.color = data.color;
+                expPhase.innerText = data.phase;
+                expDesc.innerText = data.desc;
+
+                await animatePacket(data);
+                await new Promise(r => setTimeout(r, 600 / speedFactor));
+            }
+
+            document.getElementById('client-ip-display').innerText = assignedIP;
+            document.getElementById('client-ip-display').style.color = "var(--c-green)";
+            document.getElementById('client-icon').style.borderColor = "var(--c-green)";
+
+            addLeaseToTable(assignedIP);
+
+            expTitle.innerText = "🎉 תהליך DORA הושלם בהצלחה!";
+            expTitle.style.color = "var(--c-green)";
+            expPhase.innerText = "הושלם";
+            expDesc.innerText = `המחשב קיבל בהצלחה את כתובת ה-IP ${assignedIP}. כעת התקשורת פעילה!`;
+
+            packet.style.display = 'none';
+            isRunning = false;
+            btnStart.disabled = false;
+            btnPause.disabled = true;
+        }
+
+        function addLeaseToTable(ip) {
+            const tbody = document.getElementById('lease-table-body');
+            if (tbody.children.length === 1 && tbody.children[0].cells.length === 1) {
+                tbody.innerHTML = '';
+            }
+
+            const clientName = document.getElementById('client-name').innerText;
+            const mask = document.getElementById('subnet-mask').value;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><b>${clientName}</b></td>
+                <td style="direction:ltr; font-family:var(--font-code); color:var(--c-sky); font-weight:bold;">${ip}</td>
+                <td style="direction:ltr;">${mask}</td>
+                <td>24 שעות פעיל</td>
+                <td><span style="background:var(--c-green-bg); color:var(--c-green); padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:800;">מחובר</span></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function addNewClient() {
+            if (isRunning) return;
+            currentIPIndex++;
+            const newClientNum = currentIPIndex + 1;
+            document.getElementById('client-name').innerText = `PC-Client-${newClientNum}`;
+            document.getElementById('client-ip-display').innerText = "DHCP ממתין";
+            document.getElementById('client-ip-display').style.color = "var(--muted)";
+            document.getElementById('client-icon').style.borderColor = "var(--c-sky)";
+            
+            expTitle.innerText = "💻 נוסף מכשיר חדש לרשת";
+            expPhase.innerText = "מוכן לחיבור";
+            expDesc.innerText = `המחשב PC-Client-${newClientNum} חובר לסוויץ'. לחץ על "התחל תהליך DORA" כדי להקצות לו כתובת IP.`;
+        }
+
+        function resetSimulation() {
+            if (isRunning) return;
+            currentIPIndex = 0;
+            resetStepsUI();
+            document.getElementById('client-name').innerText = "PC-Client-1";
+            document.getElementById('client-ip-display').innerText = "DHCP ממתין";
+            document.getElementById('client-ip-display').style.color = "var(--muted)";
+            document.getElementById('client-icon').style.borderColor = "var(--c-sky)";
+            document.getElementById('lease-table-body').innerHTML = `
+                <tr>
+                    <td colspan="5" style="color:var(--muted); padding:10px;">אין כרגע כתובות מוקצות בטבלה</td>
+                </tr>
+            `;
+            expTitle.innerText = "📍 מוכן לסימולציה";
+            expPhase.innerText = "מצב המתנה";
+            expDesc.innerText = "לחץ על 'התחל תהליך DORA' כדי לראות את 4 שלבי החכירה בסימולטור.";
+            packet.style.display = 'none';
+        }
+
+        // CLI logic
+        const cliSteps = [
+          {expect:/^ip\s+dhcp\s+pool\s+LAN_POOL\s*$/i, ok:"מעולה! יצרת את מאגר ה-DHCP בהצלחה."}
+        ];
+
+        function submitDhcpCmd() {
+            const input = document.getElementById("termInput");
+            const val = input.value.trim();
+            const output = document.getElementById("termOutput");
+            const prompt = document.getElementById("termPrompt").textContent;
+            if(val==="") return;
+            
+            if(cliSteps[0].expect.test(val)) {
+                output.innerHTML += "\n" + prompt + " " + val + "\n<span class='ok'>✔ " + cliSteps[0].ok + "</span>";
+                document.getElementById("taskProgress").textContent = "הושלם בהצלחה! ✅";
             } else {
-                resolve();
+                output.innerHTML += "\n" + prompt + " " + val + "\n<span class='bad'>✘ שגיאה בתחביר הפקודה. התבנית: ip dhcp pool LAN_POOL</span>";
+            }
+            input.value = "";
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Scenarios
+        const scenariosData = [
+          {
+            q: "תרחיש 1: מחשב שייך ל-<span class='eng-tag'>VLAN 10</span> והיה מחובר לסוויץ'. שרת ה-<span class='eng-tag'>DHCP</span> מחובר לפורט השייך ל-<span class='eng-tag'>VLAN 20</span> באותו המתג. האם המחשב יקבל כתובת <span class='eng-tag'>IP</span>?",
+            options: ["כן, השרת נמצא באותו סוויץ פיזי", "לא, הודעת ה-Broadcast תיחסם בגבול ה-VLAN והמחשב יקבל APIPA"],
+            ans: 1,
+            explain: "מתג (<span class='eng-tag'>Switch</span>) מבודד <span class='eng-tag'>Broadcast Domains</span> בין <span class='eng-tag'>VLANs</span> שונים. הודעת ה-Discover ב-VLAN 10 לעולם לא תגיע ל-VLAN 20 ללא רכיב L3 מתווך."
+          },
+          {
+            q: "תרחיש 2: מחשב מחובר בסניף חיפה. שרת ה-<span class='eng-tag'>DHCP</span> הפיזי ממוקם בשרתיה המרכזית בתל אביב. בנתב של סניף חיפה הוגדרה הפקודה <span class='code-text'>ip helper-address</span>. האם המחשב יקבל כתובת <span class='eng-tag'>IP</span>?",
+            options: ["כן, הנתב ממיר את ה-Broadcast ל-Unicast ומעביר אותו לשרת בתל אביב", "לא, הנתב תמיד חוסם הודעות DHCP מלהגיע לסניף אחר"],
+            ans: 0,
+            explain: "הפקודה <span class='code-text'>ip helper-address</span> הופכת את הנתב ל-<span class='eng-tag'>DHCP Relay Agent</span>. הנתב מקבל את ה-<span class='eng-tag'>Broadcast</span>, הופך אותו למעטפת <span class='eng-tag'>Unicast</span> שנשלחת ישירות לתל אביב."
+          },
+          {
+            q: "תרחיש 3: מחשב מחובר לרשת <span class='code-text'>192.168.1.0/24</span> דרך סוויץ' <span class='eng-tag'>L2</span> פשוט. הנתב המחבר לאינטרנט אינו מריץ <span class='eng-tag'>DHCP</span>, ואין שרת <span class='eng-tag'>DHCP</span> ברשת זו. האם המחשב יקבל כתובת <span class='eng-tag'>IP</span> משרת <span class='eng-tag'>DHCP</span> ברשת אחרת מעבר לנתב?",
+            options: ["כן, הנתב יעביר את ה-Broadcast באופן אוטומטי לאינטרנט", "לא, הודעת ה-Discover תיחסם בנתב והמחשב יקבל כתובת APIPA 169.254.X.X"],
+            ans: 1,
+            explain: "נתב חוסם <span class='eng-tag'>Broadcasts</span> כברירת מחדל. ללא הגדרת <span class='eng-tag'>DHCP Relay Agent</span>, הודעת ה-Discover תיפול בנתב, והמחשב יישאר ללא מענה ויקבל כתובת <span class='eng-tag'>APIPA</span>."
+          }
+        ];
+
+        let scenarioUserAns = new Array(scenariosData.length).fill(null);
+
+        function renderScenarios() {
+            const container = document.getElementById('scenarioContainer');
+            if(!container) return;
+            container.innerHTML = "";
+
+            scenariosData.forEach((sc, idx) => {
+                const box = document.createElement('div');
+                box.className = "ex-card";
+                
+                let opts = sc.options.map((opt, oIdx) => `
+                    <div class="mc-option" id="scOpt_${idx}_${oIdx}" onclick="selectScenarioOpt(${idx}, ${oIdx})">
+                        <input type="radio" name="sc_${idx}" ${scenarioUserAns[idx] === oIdx ? 'checked' : ''}>
+                        <span>${opt}</span>
+                    </div>
+                `).join('');
+
+                box.innerHTML = `
+                    <div class="ex-q">${sc.q}</div>
+                    <div>${opts}</div>
+                    <div class="ex-feedback" id="scFb_${idx}"></div>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function selectScenarioOpt(sIdx, oIdx) {
+            scenarioUserAns[sIdx] = oIdx;
+            const sc = scenariosData[sIdx];
+            const fb = document.getElementById(`scFb_${sIdx}`);
+            
+            scenariosData[sIdx].options.forEach((_, optI) => {
+                const el = document.getElementById(`scOpt_${sIdx}_${optI}`);
+                if(el) {
+                    if(optI === oIdx) el.classList.add('selected');
+                    else el.classList.remove('selected');
+                }
+            });
+
+            if(oIdx === sc.ans) {
+                fb.className = "ex-feedback correct";
+                fb.innerHTML = `✔ <b>נכון מאוד!</b> ${sc.explain}`;
+            } else {
+                fb.className = "ex-feedback wrong";
+                fb.innerHTML = `✗ <b>תשובה שגויה.</b> ${sc.explain}`;
             }
         }
-        requestAnimationFrame(step);
-    });
-}
 
-async function startDORA() {
-    if (isRunning) return;
-    isRunning = true;
-    isPaused = false;
-    btnStart.disabled = true;
-    btnPause.disabled = false;
-    btnPause.innerText = "⏸️ השהה";
+        // Quiz Logic
+        const quizQuestions = [
+          {
+            q: "1. מה מייצגים ראשי התיבות של פרוטוקול <span class='eng-tag'>DHCP</span>?",
+            options: [
+              "Dynamic Host Configuration Protocol",
+              "Domain Host Control Protocol",
+              "Dynamic Hardware Connection Provider",
+              "Direct Host Communications Process"
+            ],
+            ans: 0,
+            explain: "DHCP הוא Dynamic Host Configuration Protocol, האחראי להקצאת כתובות אוטומטית."
+          },
+          {
+            q: "2. מהי סדרת השלבים הנכונה בתהליך החכירה <span class='eng-tag'>DORA</span>?",
+            options: [
+              "Data Offer Request Access",
+              "Discover Offer Request Acknowledge",
+              "Domain Option Route Address",
+              "Discover Option Renew Accept"
+            ],
+            ans: 1,
+            explain: "ארבעת השלבים הם: Discover, Offer, Request, Acknowledge."
+          },
+          {
+            q: "3. באיזה אופן נשלחת הודעת ה-<span class='eng-tag'>DHCP DISCOVER</span> על ידי הלקוח?",
+            options: [
+              "Unicast – ישירות לכתובת השרת",
+              "Multicast – לקבוצת השרתים",
+              "Broadcast – שידור היקפי לכל הרשת",
+              "Anycast – לרכיב הקרוב ביותר"
+            ],
+            ans: 2,
+            explain: "מכיוון שהלקוח עדיין אינו מכיר את השרת ואת כתובתו, הודעת Discover נשלחת ב-Broadcast."
+          },
+          {
+            q: "4. באיזה טווח כתובות עושה שימוש מנגנון ה-<span class='eng-tag'>APIPA</span>?",
+            options: [
+              "10.0.0.0/8",
+              "192.168.1.0/24",
+              "169.254.0.0/16",
+              "172.16.0.0/12"
+            ],
+            ans: 2,
+            explain: "כתובות APIPA מוקצות בטווח השמור 169.254.0.0/16."
+          },
+          {
+            q: "5. מחשב קיבל כתובת <span class='eng-tag'>APIPA</span> (169.254.X.X). מהי המגבלה המרכזית שלו?",
+            options: [
+              "המחשב אינו יכול לתקשר כלל עם אף מכשיר",
+              "המחשב יכול לתקשר ברשת המקומית בלבד אך לא לצאת לאינטרנט",
+              "המחשב יכול לגלוש באינטרנט אך לא לגשת למדפסת המקומית",
+              "המחשב נכבה אוטומטית לאחר 5 דקות"
+            ],
+            ans: 1,
+            explain: "מנגנון APIPA אינו מקצה Default Gateway ולכן התקשורת היא מקומית בלבד בתוך סגמנט ה-LAN."
+          },
+          {
+            q: "6. באילו פורטים בפרוטוקול <span class='eng-tag'>UDP</span> משתמש פרוטוקול <span class='eng-tag'>DHCP</span>?",
+            options: [
+              "Port 80 & 443",
+              "Port 53 & 67",
+              "Port 67 Server & Port 68 Client",
+              "Port 21 & 22"
+            ],
+            ans: 2,
+            explain: "שרת DHCP מאזין בפורט UDP 67 והלקוח מקבל הודעות בפורט UDP 68."
+          },
+          {
+            q: "7. למה משמש הפרמטר <span class='eng-tag'>Lease Time</span> בהגדרות שרת <span class='eng-tag'>DHCP</span>?",
+            options: [
+              "להגדרת מהירות הגלישה של הלקוח",
+              "לקביעת משך הזמן שהכתובת מושאלת למחשב לפני שעליו לחדש את הבקשה",
+              "לקביעת כמות המשתמשים המקסימלית ברשת",
+              "להגדרת סיסמת התחברות לרשת"
+            ],
+            ans: 1,
+            explain: "Lease Time מגדיר את זמן החכירה של הכתובת בטרם תידרש חידוש."
+          },
+          {
+            q: "8. מהי פקודת סיסקו ליצירת מאגר כתובות <span class='eng-tag'>DHCP</span> חדש?",
+            options: [
+              "ip dhcp pool pool_name",
+              "service dhcp create pool_name",
+              "dhcp-server pool add",
+              "ip address dhcp pool"
+            ],
+            ans: 0,
+            explain: "הפקודה במצב Configuration היא: ip dhcp pool [name]"
+          },
+          {
+            q: "9. מה קורה בפרק זמן <span class='eng-tag'>T1</span> (כ-50% מזמן החכירה)?",
+            options: [
+              "הלקוח מנתק את החיבור לרשת מיד",
+              "הלקוח פונה ב-Unicast לשרת המקורי לבקשת חידוש החכירה",
+              "השרת מוחק את הלקוח מטבלת החכירות",
+              "המחשב עובר אוטומטית לכתובת APIPA"
+            ],
+            ans: 1,
+            explain: "ב-50% מתקופת החכירה (T1), הלקוח מנסה לחדש את החכירה מול השרת המקורי ב-Unicast."
+          },
+          {
+            q: "10. מהי מטרת הרכיב <span class='eng-tag'>DHCP Relay Agent</span> (<span class='code-text'>ip helper-address</span>)?",
+            options: [
+              "להגדיל את מהירות חלוקת הכתובות",
+              "לאפשר העברת בקשות DHCP ב-Broadcast מעבר לנתב (Router) לשרת מרכזי ברשת אחרת",
+              "לחסום הודעות DHCP מבוססות APIPA",
+              "להגדיר את מסיכת הרשת באופן אוטומטי"
+            ],
+            ans: 1,
+            explain: "נתבים חוסמים הודעות Broadcast. רכיב DHCP Relay מעביר הודעות Discover כ-Unicast לשרת ב-VLAN / רשת אחרת."
+          }
+        ];
 
-    document.getElementById('client-ip-display').innerText = "DHCP מבקש כתובת";
-    document.getElementById('client-ip-display').style.color = "#0284c7";
+        let userAnswers = new Array(quizQuestions.length).fill(null);
 
-    const assignedIP = getAssignedIP();
-    
-    doraData[1].dstIp = assignedIP;
-    doraData[3].dstIp = assignedIP;
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            if(!container) return;
+            container.innerHTML = "";
 
-    for (let i = 0; i < doraData.length; i++) {
-        const data = doraData[i];
-        resetStepsUI();
-        document.getElementById(`step-${data.step}`).classList.add('active');
+            quizQuestions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "ex-card";
+                
+                let optionsHtml = q.options.map((opt, oIdx) => `
+                    <div class="mc-option" id="opt_${idx}_${oIdx}" onclick="selectQuizOpt(${idx}, ${oIdx})">
+                        <input type="radio" name="q_${idx}" ${userAnswers[idx] === oIdx ? 'checked' : ''}>
+                        <span>${opt}</span>
+                    </div>
+                `).join('');
 
-        expTitle.innerText = data.title;
-        expTitle.style.color = data.color;
-        expPhase.innerText = data.phase;
-        expDesc.innerText = data.desc;
+                card.innerHTML = `
+                    <div class="ex-num">QUESTION ${idx + 1} OF 10</div>
+                    <div class="ex-q">${q.q}</div>
+                    <div>${optionsHtml}</div>
+                    <div class="ex-feedback" id="qFb_${idx}"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-        await animatePacket(data);
-        await new Promise(r => setTimeout(r, 600 / speedFactor));
-    }
+        function selectQuizOpt(qIdx, oIdx) {
+            userAnswers[qIdx] = oIdx;
+            quizQuestions[qIdx].options.forEach((_, optI) => {
+                const el = document.getElementById(`opt_${qIdx}_${optI}`);
+                if(el) {
+                    if(optI === oIdx) el.classList.add('selected');
+                    else el.classList.remove('selected');
+                }
+            });
+        }
 
-    document.getElementById('client-ip-display').innerText = assignedIP;
-    document.getElementById('client-ip-display').style.color = "#16a34a";
-    document.getElementById('client-icon').style.border = "2px solid #16a34a";
+        function calculateQuizScore() {
+            let correctCount = 0;
+            quizQuestions.forEach((q, idx) => {
+                const fbEl = document.getElementById(`qFb_${idx}`);
+                if(userAnswers[idx] === q.ans) {
+                    correctCount++;
+                    fbEl.className = "ex-feedback correct";
+                    fbEl.innerHTML = `✔ <b>תשובה נכונה!</b> ${q.explain}`;
+                } else {
+                    fbEl.className = "ex-feedback wrong";
+                    fbEl.innerHTML = `✗ <b>תשובה לא נכונה.</b> ${q.explain}`;
+                }
+            });
 
-    addLeaseToTable(assignedIP);
+            const finalScore = Math.round((correctCount / quizQuestions.length) * 100);
+            document.getElementById('quizScoreDisplay').innerText = `${finalScore} / 100`;
+            if(finalScore >= 70) {
+                document.getElementById('completionBox').classList.add('show');
+            }
+        }
 
-    expTitle.innerText = "🎉 תהליך DORA הושלם בהצלחה!";
-    expTitle.style.color = "#16a34a";
-    expPhase.innerText = "הושלם";
-    expDesc.innerText = `המחשב קיבל בהצלחה את כתובת ה-IP ${assignedIP}. כעת התקשורת פעילה!`;
+        // Reflection Logic
+        const reflectionQuestions = [
+          {
+            q: "1. רפלקציית תהליך <span class='eng-tag'>DORA</span>: כיצד ההבנה של 4 השלבים עוזרת לך לאבחן תקלה שבה מחשב אינו מקבל כתובת <span class='eng-tag'>IP</span>?",
+            hint: "חשוב על הבדלה בין תביעות רשת פיזיות, חסימת Broadcasts בסוויץ'/נתב, או שרת DHCP שאינו מגיב בשלב Offer."
+          },
+          {
+            q: "2. רפלקציית <span class='eng-tag'>APIPA</span> ופתרון תקלות: הגעת ללקוח ומצאת שלמחשב יש כתובת <span class='code-text'>169.254.45.12</span>. מה תהיה סדרת הבדיקות הראשיות שתבצע?",
+            hint: "בדיקת כבל רשת, בדיקת זמינות שרת DHCP, בדיקת הגדרות כרטיס רשת (Obtain IP automatically), ובדיקת Relay Agent."
+          },
+          {
+            q: "3. חשיבה ארכיטקטונית: מתי כאיש רשתות תעדיף להגדיר כתובת <span class='eng-tag'>IP</span> סטטית ומתי תעדיף להשתמש בהקצאת <span class='eng-tag'>DHCP</span>?",
+            hint: "כתובת סטטית מיועדת לשרתים, מדפסות, ממשקי נתבים וסוויצ'ים; DHCP מיועד למכשירי קצה כמו מחשבים, טלפונים וניידים."
+          },
+          {
+            q: "4. חיבור לסימולציה המעשית: איזה חלק בסימולטור ה-<span class='eng-tag'>Packet Tracer</span> עזר לך ביותר להבין את זרימת המידע ברשת? נמק.",
+            hint: "התייחס לתנועת המעטפות המואטת, ההסברים בזמן אמת או טבלת החכירות המתעדכנת."
+          },
+          {
+            q: "5. סיכום התפתחות אישית: כתוב תובנה מרכזית אחת שקיבלת בשיעור זה לגבי תפקידו של טכנאי / מהנדס רשתות בעולם התקשורת.",
+            hint: "התייחס לחשיבות של הבנת הפרוטוקולים לעומק מעבר ללחיצה על כפתורים."
+          }
+        ];
 
-    packet.style.display = 'none';
-    isRunning = false;
-    btnStart.disabled = false;
-    btnPause.disabled = true;
-}
+        function renderReflection() {
+            const container = document.getElementById('reflectionContainer');
+            if(!container) return;
+            container.innerHTML = "";
 
-function addLeaseToTable(ip) {
-    const tbody = document.getElementById('lease-table-body');
-    if (tbody.children.length === 1 && tbody.children[0].cells.length === 1) {
-        tbody.innerHTML = '';
-    }
+            reflectionQuestions.forEach((rf, idx) => {
+                const card = document.createElement('div');
+                card.className = "ex-card";
+                card.innerHTML = `
+                    <div class="ex-num">REFLECTION QUESTION ${idx + 1} OF 5</div>
+                    <div class="ex-q">${rf.q}</div>
+                    <textarea class="ex-textarea" id="refIn_${idx}" placeholder="שתף את מחשבותיך, תובנותיך והסברך האישי..."></textarea>
+                    <button class="btn" style="min-height: 40px; font-size: 0.8rem;" onclick="saveReflection(${idx})">שמור רפלקציה</button>
+                    <div class="ex-feedback" id="refFb_${idx}"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-    const clientName = document.getElementById('client-name').innerText;
-    const mask = document.getElementById('subnet-mask').value;
+        function saveReflection(idx) {
+            const val = document.getElementById(`refIn_${idx}`).value.trim();
+            const fbEl = document.getElementById(`refFb_${idx}`);
+            if(val.length > 10) {
+                fbEl.className = "ex-feedback correct";
+                fbEl.innerHTML = "🌟 <b>רפלקציה מעולה ומשמעותית!</b> התשובה נשמרה במערכת הלמידה.";
+            } else {
+                fbEl.className = "ex-feedback wrong";
+                fbEl.innerHTML = "אנא הרחב מעט את תשובתך כדי להפיק את המרב מהתרגיל הרפלקטיבי.";
+            }
+        }
 
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td><b>${clientName}</b></td>
-        <td style="direction:ltr; font-family:'JetBrains Mono', monospace; color:#0284c7; font-weight:bold;">${ip}</td>
-        <td style="direction:ltr;">${mask}</td>
-        <td>24 שעות פעיל</td>
-        <td><span style="background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:800;">מחובר</span></td>
-    `;
-    tbody.appendChild(row);
-}
-
-function addNewClient() {
-    if (isRunning) return;
-    currentIPIndex++;
-    const newClientNum = currentIPIndex + 1;
-    document.getElementById('client-name').innerText = `PC-Client-${newClientNum}`;
-    document.getElementById('client-ip-display').innerText = "DHCP ממתין";
-    document.getElementById('client-ip-display').style.color = "#64748b";
-    document.getElementById('client-icon').style.border = "2px solid #0284c7";
-    
-    expTitle.innerText = "💻 נוסף מכשיר חדש לרשת";
-    expPhase.innerText = "מוכן לחיבור";
-    expDesc.innerText = `המחשב PC-Client-${newClientNum} חובר לסוויץ'. לחץ על "התחל תהליך DORA" כדי להקצות לו כתובת IP.`;
-}
-
-function resetSimulation() {
-    if (isRunning) return;
-    currentIPIndex = 0;
-    resetStepsUI();
-    document.getElementById('client-name').innerText = "PC-Client-1";
-    document.getElementById('client-ip-display').innerText = "DHCP ממתין";
-    document.getElementById('client-ip-display').style.color = "#64748b";
-    document.getElementById('client-icon').style.border = "2px solid #0284c7";
-    document.getElementById('lease-table-body').innerHTML = `
-        <tr>
-            <td colspan="5" style="color:#94a3b8; padding:10px; font-weight:600;">אין כרגע כתובות מוקצות בטבלה</td>
-        </tr>
-    `;
-    expTitle.innerText = "📍 מוכן לסימולציה";
-    expPhase.innerText = "מצב המתנה";
-    expDesc.innerText = "לחץ על 'התחל תהליך DORA' כדי לראות את 4 שלבי החכירה בסימולטור.";
-    packet.style.display = 'none';
-}
-
-const cliSteps = [
-  {expect:/^ip\s+dhcp\s+pool\s+LAN_POOL\s*$/i, ok:"מעולה! יצרת את מאגר ה-DHCP בהצלחה."}
-];
-
-function submitDhcpCmd() {
-  const input = document.getElementById("termInput");
-  const val = input.value.trim();
-  const output = document.getElementById("termOutput");
-  const prompt = document.getElementById("termPrompt").textContent;
-  if(val==="") return;
-  
-  if(cliSteps[0].expect.test(val)) {
-    output.innerHTML += "\n" + prompt + " " + val + "\n<span class='ok'>✔ " + cliSteps[0].ok + "</span>";
-    document.getElementById("taskProgress").textContent = "הושלם בהצלחה! ✅";
-  } else {
-    output.innerHTML += "\n" + prompt + " " + val + "\n<span class='bad'>✘ שגיאה בתחביר הפקודה. התבנית: ip dhcp pool LAN_POOL</span>";
-  }
-  input.value = "";
-  output.scrollTop = output.scrollHeight;
-}
-
-const scenariosData = [
-  {
-    q: "תרחיש 1: מחשב שייך ל-<span class='term-badge'>VLAN 10</span> והיה מחובר לסוויץ'. שרת ה-<span class='term-badge'>DHCP</span> מחובר לפורט השייך ל-<span class='term-badge'>VLAN 20</span> באותו המתג. האם המחשב יקבל כתובת <span class='term-badge'>IP</span>?",
-    options: ["כן, השרת נמצא באותו סוויץ פיזי", "לא, הודעת ה-Broadcast תיחסם בגבול ה-VLAN והמחשב יקבל APIPA"],
-    ans: 1,
-    explain: "מתג (<span class='term-badge'>Switch</span>) מבודד <span class='term-badge'>Broadcast Domains</span> בין <span class='term-badge'>VLANs</span> שונים. הודעת ה-Discover ב-VLAN 10 לעולם לא תגיע ל-VLAN 20 ללא רכיב L3 מתווך."
-  },
-  {
-    q: "תרחיש 2: מחשב מחובר בסניף חיפה. שרת ה-<span class='term-badge'>DHCP</span> הפיזי ממוקם בשרתיה המרכזית בתל אביב. בנתב של סניף חיפה הוגדרה הפקודה <span class='code-text'>ip helper-address</span>. האם המחשב יקבל כתובת <span class='term-badge'>IP</span>?",
-    options: ["כן, הנתב ממיר את ה-Broadcast ל-Unicast ומעביר אותו לשרת בתל אביב", "לא, הנתב תמיד חוסם הודעות DHCP מלהגיע לסניף אחר"],
-    ans: 0,
-    explain: "הפקודה <span class='code-text'>ip helper-address</span> הופכת את הנתב ל-<span class='term-badge'>DHCP Relay Agent</span>. הנתב מקבל את ה-<span class='term-badge'>Broadcast</span>, הופך אותו למעטפת <span class='term-badge'>Unicast</span> שנשלחת ישירות לתל אביב."
-  },
-  {
-    q: "תרחיש 3: מחשב מחובר לרשת <span class='code-text'>192.168.1.0/24</span> דרך סוויץ' <span class='term-badge'>L2</span> פשוט. הנתב המחבר לאינטרנט אינו מריץ <span class='term-badge'>DHCP</span>, ואין שרת <span class='term-badge'>DHCP</span> ברשת זו. האם המחשב יקבל כתובת <span class='term-badge'>IP</span> משרת <span class='term-badge'>DHCP</span> ברשת אחרת מעבר לנתב?",
-    options: ["כן, הנתב יעביר את ה-Broadcast באופן אוטומטי לאינטרנט", "לא, הודעת ה-Discover תיחסם בנתב והמחשב יקבל כתובת APIPA 169.254.X.X"],
-    ans: 1,
-    explain: "נתב חוסם <span class='term-badge'>Broadcasts</span> כברירת מחדל. ללא הגדרת <span class='term-badge'>DHCP Relay Agent</span>, הודעת ה-Discover תיפול בנתב, והמחשב יישאר ללא מענה ויקבל כתובת <span class='term-badge'>APIPA</span>."
-  }
-];
-
-let scenarioUserAns = new Array(scenariosData.length).fill(null);
-
-function renderScenarios() {
-  const container = document.getElementById('scenarioContainer');
-  if(!container) return;
-  container.innerHTML = "";
-
-  scenariosData.forEach((sc, idx) => {
-    const box = document.createElement('div');
-    box.style.cssText = "background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:16px; margin-bottom:14px;";
-    
-    let opts = sc.options.map((opt, oIdx) => `
-      <div class="mc-option" id="scOpt_${idx}_${oIdx}" onclick="selectScenarioOpt(${idx}, ${oIdx})">
-        <input type="radio" name="sc_${idx}" ${scenarioUserAns[idx] === oIdx ? 'checked' : ''}>
-        <span>${opt}</span>
-      </div>
-    `).join('');
-
-    box.innerHTML = `
-      <div style="font-weight:700; font-size:16px; color:#1E293B; margin-bottom:10px;">${sc.q}</div>
-      <div>${opts}</div>
-      <div class="ex-feedback" id="scFb_${idx}"></div>
-    `;
-    container.appendChild(box);
-  });
-}
-
-function selectScenarioOpt(sIdx, oIdx) {
-  scenarioUserAns[sIdx] = oIdx;
-  const sc = scenariosData[sIdx];
-  const fb = document.getElementById(`scFb_${sIdx}`);
-  
-  scenariosData[sIdx].options.forEach((_, optI) => {
-    const el = document.getElementById(`scOpt_${sIdx}_${optI}`);
-    if(el) {
-      if(optI === oIdx) el.classList.add('selected');
-      else el.classList.remove('selected');
-    }
-  });
-
-  if(oIdx === sc.ans) {
-    fb.className = "ex-feedback correct";
-    fb.innerHTML = `✔ <b>נכון מאוד!</b> ${sc.explain}`;
-  } else {
-    fb.className = "ex-feedback wrong";
-    fb.innerHTML = `✘ <b>תשובה שגויה.</b> ${sc.explain}`;
-  }
-}
-
-const quizQuestions = [
-  {
-    q: "1. מה מייצגים ראשי התיבות של פרוטוקול <span class='term-badge'>DHCP</span>?",
-    options: [
-      "Dynamic Host Configuration Protocol",
-      "Domain Host Control Protocol",
-      "Dynamic Hardware Connection Provider",
-      "Direct Host Communications Process"
-    ],
-    ans: 0,
-    explain: "DHCP הוא Dynamic Host Configuration Protocol, האחראי להקצאת כתובות אוטומטית."
-  },
-  {
-    q: "2. מהי סדרת השלבים הנכונה בתהליך החכירה <span class='term-badge'>DORA</span>?",
-    options: [
-      "Data Offer Request Access",
-      "Discover Offer Request Acknowledge",
-      "Domain Option Route Address",
-      "Discover Option Renew Accept"
-    ],
-    ans: 1,
-    explain: "ארבעת השלבים הם: Discover, Offer, Request, Acknowledge."
-  },
-  {
-    q: "3. באיזה אופן נשלחת הודעת ה-<span class='term-badge'>DHCP DISCOVER</span> על ידי הלקוח?",
-    options: [
-      "Unicast – ישירות לכתובת השרת",
-      "Multicast – לקבוצת השרתים",
-      "Broadcast – שידור היקפי לכל הרשת",
-      "Anycast – לרכיב הקרוב ביותר"
-    ],
-    ans: 2,
-    explain: "מכיוון שהלקוח עדיין אינו מכיר את השרת ואת כתובתו, הודעת Discover נשלחת ב-Broadcast."
-  },
-  {
-    q: "4. באיזה טווח כתובות עושה שימוש מנגנון ה-<span class='term-badge'>APIPA</span>?",
-    options: [
-      "10.0.0.0/8",
-      "192.168.1.0/24",
-      "169.254.0.0/16",
-      "172.16.0.0/12"
-    ],
-    ans: 2,
-    explain: "כתובות APIPA מוקצות בטווח השמור 169.254.0.0/16."
-  },
-  {
-    q: "5. מחשב קיבל כתובת <span class='term-badge'>APIPA</span> (169.254.X.X). מהי המגבלה המרכזית שלו?",
-    options: [
-      "המחשב אינו יכול לתקשר כלל עם אף מכשיר",
-      "המחשב יכול לתקשר ברשת המקומית בלבד אך לא לצאת לאינטרנט",
-      "המחשב יכול לגלוש באינטרנט אך לא לגשת למדפסת המקומית",
-      "המחשב נכבה אוטומטית לאחר 5 דקות"
-    ],
-    ans: 1,
-    explain: "מנגנון APIPA אינו מקצה Default Gateway ולכן התקשורת היא מקומית בלבד בתוך סגמנט ה-LAN."
-  },
-  {
-    q: "6. באילו פורטים בפרוטוקול <span class='term-badge'>UDP</span> משתמש פרוטוקול <span class='term-badge'>DHCP</span>?",
-    options: [
-      "Port 80 & 443",
-      "Port 53 & 67",
-      "Port 67 Server & Port 68 Client",
-      "Port 21 & 22"
-    ],
-    ans: 2,
-    explain: "שרת DHCP מאזין בפורט UDP 67 והלקוח מקבל הודעות בפורט UDP 68."
-  },
-  {
-    q: "7. למה משמש הפרמטר <span class='term-badge'>Lease Time</span> בהגדרות שרת <span class='term-badge'>DHCP</span>?",
-    options: [
-      "להגדרת מהירות הגלישה של הלקוח",
-      "לקביעת משך הזמן שהכתובת מושאלת למחשב לפני שעליו לחדש את הבקשה",
-      "לקביעת כמות המשתמשים המקסימלית ברשת",
-      "להגדרת סיסמת התחברות לרשת"
-    ],
-    ans: 1,
-    explain: "Lease Time מגדיר את זמן החכירה של הכתובת בטרם תידרש חידוש."
-  },
-  {
-    q: "8. מהי פקודת סיסקו ליצירת מאגר כתובות <span class='term-badge'>DHCP</span> חדש?",
-    options: [
-      "ip dhcp pool pool_name",
-      "service dhcp create pool_name",
-      "dhcp-server pool add",
-      "ip address dhcp pool"
-    ],
-    ans: 0,
-    explain: "הפקודה במצב Configuration היא: ip dhcp pool [name]"
-  },
-  {
-    q: "9. מה קורה בפרק זמן <span class='term-badge'>T1</span> (כ-50% מזמן החכירה)?",
-    options: [
-      "הלקוח מנתק את החיבור לרשת מיד",
-      "הלקוח פונה ב-Unicast לשרת המקורי לבקשת חידוש החכירה",
-      "השרת מוחק את הלקוח מטבלת החכירות",
-      "המחשב עובר אוטומטית לכתובת APIPA"
-    ],
-    ans: 1,
-    explain: "ב-50% מתקופת החכירה (T1), הלקוח מנסה לחדש את החכירה מול השרת המקורי ב-Unicast."
-  },
-  {
-    q: "10. מהי מטרת הרכיב <span class='term-badge'>DHCP Relay Agent</span> (<span class='code-text'>ip helper-address</span>)?",
-    options: [
-      "להגדיל את מהירות חלוקת הכתובות",
-      "לאפשר העברת בקשות DHCP ב-Broadcast מעבר לנתב (Router) לשרת מרכזי ברשת אחרת",
-      "לחסום הודעות DHCP מבוססות APIPA",
-      "להגדיר את מסיכת הרשת באופן אוטומטי"
-    ],
-    ans: 1,
-    explain: "נתבים חוסמים הודעות Broadcast. רכיב DHCP Relay מעביר הודעות Discover כ-Unicast לשרת ב-VLAN / רשת אחרת."
-  }
-];
-
-let userAnswers = new Array(quizQuestions.length).fill(null);
-
-function renderQuiz() {
-  const container = document.getElementById('quizContainer');
-  if(!container) return;
-  container.innerHTML = "";
-
-  quizQuestions.forEach((q, idx) => {
-    const card = document.createElement('div');
-    card.className = "ex-card";
-    
-    let optionsHtml = q.options.map((opt, oIdx) => `
-      <div class="mc-option" id="opt_${idx}_${oIdx}" onclick="selectQuizOpt(${idx}, ${oIdx})">
-        <input type="radio" name="q_${idx}" ${userAnswers[idx] === oIdx ? 'checked' : ''}>
-        <span>${opt}</span>
-      </div>
-    `).join('');
-
-    card.innerHTML = `
-      <div class="ex-num">QUESTION ${idx + 1} OF 10</div>
-      <div class="ex-q">${q.q}</div>
-      <div>${optionsHtml}</div>
-      <div class="ex-feedback" id="qFb_${idx}"></div>
-    `;
-    container.appendChild(card);
-  });
-}
-
-function selectQuizOpt(qIdx, oIdx) {
-  userAnswers[qIdx] = oIdx;
-  quizQuestions[qIdx].options.forEach((_, optI) => {
-    const el = document.getElementById(`opt_${qIdx}_${optI}`);
-    if(el) {
-      if(optI === oIdx) el.classList.add('selected');
-      else el.classList.remove('selected');
-    }
-  });
-}
-
-function calculateQuizScore() {
-  let correctCount = 0;
-  quizQuestions.forEach((q, idx) => {
-    const fbEl = document.getElementById(`qFb_${idx}`);
-    if(userAnswers[idx] === q.ans) {
-      correctCount++;
-      fbEl.className = "ex-feedback correct";
-      fbEl.innerHTML = `✔ <b>תשובה נכונה!</b> ${q.explain}`;
-    } else {
-      fbEl.className = "ex-feedback wrong";
-      fbEl.innerHTML = `✘ <b>תשובה לא נכונה.</b> ${q.explain}`;
-    }
-  });
-
-  const finalScore = Math.round((correctCount / quizQuestions.length) * 100);
-  document.getElementById('quizScoreDisplay').innerText = `${finalScore} / 100`;
-  if(finalScore >= 70) {
-      document.getElementById('completionBox').classList.add('show');
-  }
-}
-
-const reflectionQuestions = [
-  {
-    q: "1. רפלקציית תהליך <span class='term-badge'>DORA</span>: כיצד ההבנה של 4 השלבים עוזרת לך לאבחן תקלה שבה מחשב אינו מקבל כתובת <span class='term-badge'>IP</span>?",
-    hint: "חשוב על הבדלה בין תביעות רשת פיזיות, חסימת Broadcasts בסוויץ'/נתב, או שרת DHCP שאינו מגיב בשלב Offer."
-  },
-  {
-    q: "2. רפלקציית <span class='term-badge'>APIPA</span> ופתרון תקלות: הגעת ללקוח ומצאת שלמחשב יש כתובת <span class='code-text'>169.254.45.12</span>. מה תהיה סדרת הבדיקות הראשיות שתבצע?",
-    hint: "בדיקת כבל רשת, בדיקת זמינות שרת DHCP, בדיקת הגדרות כרטיס רשת (Obtain IP automatically), ובדיקת Relay Agent."
-  },
-  {
-    q: "3. חשיבה ארכיטקטונית: מתי כאיש רשתות תעדיף להגדיר כתובת <span class='term-badge'>IP</span> סטטית ומתי תעדיף להשתמש בהקצאת <span class='term-badge'>DHCP</span>?",
-    hint: "כתובת סטטית מיועדת לשרתים, מדפסות, ממשקי נתבים וסוויצ'ים; DHCP מיועד למכשירי קצה כמו מחשבים, טלפונים וניידים."
-  },
-  {
-    q: "4. חיבור לסימולציה המעשית: איזה חלק בסימולטור ה-<span class='term-badge'>Packet Tracer</span> עזר לך ביותר להבין את זרימת המידע ברשת? נמק.",
-    hint: "התייחס לתנועת המעטפות המואטת, ההסברים בזמן אמת או טבלת החכירות המתעדכנת."
-  },
-  {
-    q: "5. סיכום התפתחות אישית: כתוב תובנה מרכזית אחת שקיבלת בשיעור זה לגבי תפקידו של טכנאי / מהנדס רשתות בעולם התקשורת.",
-    hint: "התייחס לחשיבות של הבנת הפרוטוקולים לעומק מעבר ללחיצה על כפתורים."
-  }
-];
-
-function renderReflection() {
-  const container = document.getElementById('reflectionContainer');
-  if(!container) return;
-  container.innerHTML = "";
-
-  reflectionQuestions.forEach((rf, idx) => {
-    const card = document.createElement('div');
-    card.className = "ex-card";
-    card.innerHTML = `
-      <div class="ex-num" style="color:var(--ospf-gold);">REFLECTION QUESTION ${idx + 1} OF 5</div>
-      <div class="ex-q">${rf.q}</div>
-      <textarea class="ex-textarea" id="refIn_${idx}" placeholder="שתף את מחשבותיך, תובנותיך והסברך האישי..."></textarea>
-      <button class="btn" style="padding: 8px 16px; font-size: 13px; background:var(--ospf-gold);" onclick="saveReflection(${idx})">שמור רפלקציה</button>
-      <div class="ex-feedback" id="refFb_${idx}"></div>
-    `;
-    container.appendChild(card);
-  });
-}
-
-function saveReflection(idx) {
-  const val = document.getElementById(`refIn_${idx}`).value.trim();
-  const fbEl = document.getElementById(`refFb_${idx}`);
-  if(val.length > 10) {
-    fbEl.className = "ex-feedback correct";
-    fbEl.innerHTML = "🌟 <b>רפלקציה מעולה ומשמעותית!</b> התשובה נשמרה במערכת הלמידה.";
-  } else {
-    fbEl.className = "ex-feedback wrong";
-    fbEl.innerHTML = "אנא הרחב מעט את תשובתך כדי להפיק את המרב מהתרגיל הרפלקטיבי.";
-  }
-}
-
-renderScenarios();
-renderQuiz();
-renderReflection();
-</script>
+        // Init Default State
+        window.onload = function() {
+            try { applyDark(localStorage.getItem('dhcp_lesson_dark') === '1'); } catch (e) {}
+            renderScenarios();
+            renderQuiz();
+            renderReflection();
+        };
+    </script>
 </body>
 </html>
